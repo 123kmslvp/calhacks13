@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
+import { Art, Icon } from './components/Art.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
 import { SKILLS } from './data/roster.js'
 import { BADGES } from './data/badges.js'
@@ -16,7 +17,7 @@ import {
 } from './data/progress.js'
 
 const TABS = [
-  { id: 'poppy', icon: '🍿', label: 'Poppy' },
+  { id: 'poppy', icon: <Poppy size="chip" />, label: 'Poppy' },
   { id: 'badges', icon: '🏅', label: 'Badges' },
   { id: 'art', icon: '🎨', label: 'Drawings' },
   { id: 'skills', icon: '📈', label: 'Skills' },
@@ -101,7 +102,7 @@ export default function ProgressPage({ student, onBack, onSelectItem, onRead, on
             return (
               <li key={s.id} className={`stage-step ${state}`}>
                 <span className="stage-dot" aria-hidden="true">
-                  {state === 'locked' ? '🔒' : state === 'done' ? '✓' : '⭐'}
+                  {state === 'locked' ? <Art name="egg" /> : state === 'done' ? <Art name="popcorn" /> : <Poppy size="chip" />}
                 </span>
                 <span className="stage-name">{s.name}</span>
                 <span className="stage-min">{s.min} pts</span>
@@ -119,7 +120,7 @@ export default function ProgressPage({ student, onBack, onSelectItem, onRead, on
               aria-pressed={!item}
               onClick={() => onSelectItem(null)}
             >
-              <span className="dress-icon" aria-hidden="true">🍿</span>
+              <span className="dress-icon" aria-hidden="true"><Poppy size="thumb" /></span>
               Just Poppy
             </button>
             {POPPY_ITEMS.map((i) => {
@@ -134,7 +135,7 @@ export default function ProgressPage({ student, onBack, onSelectItem, onRead, on
                   disabled={!unlocked}
                   onClick={() => onSelectItem(i.id)}
                 >
-                  <span className="dress-icon" aria-hidden="true">{unlocked ? i.icon : '🔒'}</span>
+                  <span className="dress-icon" aria-hidden="true"><Poppy size="thumb" item={i} /></span>
                   {unlocked ? i.label : `${i.min} pts`}
                 </button>
               )
@@ -167,7 +168,7 @@ export default function ProgressPage({ student, onBack, onSelectItem, onRead, on
               const have = (student.badges ?? []).some((x) => x.id === b.id)
               return (
                 <li key={b.id} className={have ? 'badge-card' : 'badge-card locked'}>
-                  <span className="badge-icon" aria-hidden="true">{have ? b.icon : '🔒'}</span>
+                  <span className="badge-icon" aria-hidden="true">{have ? <Icon e={b.icon} /> : '🔒'}</span>
                   <strong>{b.name}</strong>
                   {have && <span>{b.about}</span>}
                 </li>
@@ -288,7 +289,7 @@ export default function ProgressPage({ student, onBack, onSelectItem, onRead, on
         )}
         <div className="home-choices progress-nav">
           <button type="button" className="home-card home-read" onClick={onRead}>
-            <span className="home-icon" aria-hidden="true">📚</span>
+            <span className="home-icon" aria-hidden="true"><Icon e="📚" /></span>
             <strong>Read a story</strong>
           </button>
           <button type="button" className="home-card home-play" onClick={onArcade}>

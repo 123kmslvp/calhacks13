@@ -94,7 +94,7 @@ export default function LoginPage({ students, onBack, onLogin, onTeacher }) {
         </form>
 
         <p className="demo-hint">
-          Demo login: <code>maya.r</code> / <code>corn42</code>
+          Demo login: <code>maya.r</code> / <code>popcorn25</code>
         </p>
         <p className="demo-hint">
           <button type="button" className="back" onClick={onTeacher}>

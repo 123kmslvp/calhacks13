@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Poppy from '../components/Poppy.jsx'
+import { Icon } from '../components/Art.jsx'
 import { storyOfChapter } from '../data/stories/index.js'
 import {
   applyChapterSession,
@@ -8,10 +9,14 @@ import {
   rescuePoints,
 } from '../data/progress.js'
 import { saveDrawing } from '../data/drawings.js'
+import { askAgent } from '../services/agents.js'
 import { useReadAloud } from './useReadAloud.js'
 import AdventureMap, { StoryIntro } from './AdventureMap.jsx'
 import ReadExplore, { defaultMode } from './ReadExplore.jsx'
 import ReadingFeedback from './ReadingFeedback.jsx'
+import PathwayPicker from './PathwayPicker.jsx'
+import PathwayActivity from './PathwayActivity.jsx'
+import { pathwayById } from './pathways.js'
 import WordRescue from './WordRescue.jsx'
 import Questions from './Questions.jsx'
 import Rewards from './Rewards.jsx'
@@ -24,6 +29,8 @@ import './game.css'
 const TITLES = {
   map: 'Stories',
   intro: 'Stories',
+  pathway: 'Explore',
+  explore: 'Explore',
   read: 'Read',
   feedback: 'Read',
   rescue: 'Tricky words',
@@ -33,6 +40,15 @@ const TITLES = {
   draw: 'Draw',
   write: 'Write',
   celebrate: 'Great job!',
+}
+
+// Each part of a chapter sits on its own painted scene.
+const BACKGROUNDS = {
+  map: 'bg-castle',
+  intro: 'bg-castle',
+  rewards: 'bg-stage',
+  next: 'bg-stage',
+  celebrate: 'bg-stage',
 }
 
 const stickersFor = (chapter) => [
@@ -46,10 +62,18 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
   const [session, setSession] = useState(null) // the chapter in progress
   const [result, setResult] = useState(null) // saved chapter session
   const [celebration, setCelebration] = useState(null) // drawing / writing / practice
-  const [mode, setMode] = useState(() => defaultMode(preferences))
+  // The pathway a student picked (Visual Explorer, Listen and Speak...) decides
+  // which reading tools they start with. Older profiles fall back to preferences.
+  const pathway = pathwayById(student.pathway)
+  const tools = pathway ? pathway.tools : preferences
+  const [pending, setPending] = useState(null) // chapter waiting on a pathway choice
+  const [plan, setPlan] = useState(null) // Claude's activity: 'loading' | { ... } | null
+  const [coach, setCoach] = useState(null) // Claude's read-aloud coaching
+  const planToken = useRef(0)
+  const [mode, setMode] = useState(() => defaultMode(tools))
   const [readKey, setReadKey] = useState(0)
   const recorder = useReadAloud()
-  const preferSpeak = preferences.includes('speak') && !preferences.includes('type')
+  const preferSpeak = tools.includes('speak') && !tools.includes('type')
 
   useEffect(() => () => window.speechSynthesis?.cancel(), [])
   useEffect(() => {
@@ -61,21 +85,75 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
     setStep('intro')
   }
 
-  const readChapter = (c) => {
+  const beginChapter = (c, p, changes = {}) => {
     const s = storyOfChapter(c.id)
     recorder.reset()
     setStory(s)
     setChapter({ ...c, number: s.chapters.findIndex((x) => x.id === c.id) + 1 })
     setSession(null)
     setResult(null)
+    setCoach(null)
+    setPending(null)
     setReadKey((k) => k + 1)
+
+    // Remember which ways of exploring they use, for the teacher.
+    const toolsUsed = { ...student.toolsUsed }
+    p.tools.forEach((t) => (toolsUsed[t] = (toolsUsed[t] ?? 0) + 1))
+    onSaveStudent({ ...student, ...changes, lastActive: new Date().toISOString(), toolsUsed })
+
+    // While they read, Claude writes this chapter's activity for their pathway.
+    const token = ++planToken.current
+    setPlan('loading')
+    askAgent('story', {
+      story: { id: s.id, title: s.title + ': ' + c.title, summary: s.summary, genre: s.genre, text: c.text },
+      grade: student.grade ?? s.grade,
+      difficulty: s.difficulty,
+      pathway: p.name,
+    }).then((res) => {
+      if (token !== planToken.current) return
+      const activity = res?.pathwayActivity
+      setPlan(activity?.prompts?.length ? { ...activity, vocab: res.vocabularySupport, source: res.meta?.source } : null)
+    })
     setStep('read')
   }
+
+  // No pathway yet? Ask first, then start the chapter they picked.
+  const readChapter = (c) => {
+    if (pathway) return beginChapter(c, pathway)
+    setPending(c)
+    setStep('pathway')
+  }
+
+  const choosePathway = (id) => {
+    const p = pathwayById(id)
+    setMode(defaultMode(p.tools))
+    if (pending) return beginChapter(pending, p, { pathway: id })
+    onSaveStudent({ ...student, pathway: id })
+    setStep('intro')
+  }
+
+  // After reading (and any word practice) comes the pathway activity, if Claude
+  // made one; otherwise straight to the questions.
+  const toActivity = () => setStep(pathway && plan ? 'explore' : 'questions')
 
   const finishReading = (reading) => {
     const next = { story, chapter, ...reading, rescued: [], answers: [] }
     setSession(next)
-    setStep(reading.aloud ? 'feedback' : 'questions')
+    setCoach(null)
+    if (!reading.aloud) return toActivity()
+
+    // Popcorn reading: Claude gives supportive reading-practice tips from what it heard.
+    const spoken = recorder.transcript?.trim() ?? ''
+    if (!reading.aloud.tapMode && spoken.split(' ').length >= 8) {
+      setCoach('loading')
+      askAgent('fluency', {
+        passage: chapter.text,
+        transcript: spoken.slice(0, 8000),
+        grade: student.grade ?? story?.grade,
+        readingSeconds: reading.seconds,
+      }).then((res) => setCoach(res?.meta?.source === 'claude' ? res : null))
+    }
+    setStep('feedback')
   }
 
   const finishQuestions = (answers, questionSeconds) => {
@@ -114,20 +192,24 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
     }
   }
 
-  const inChapter = ['read', 'feedback', 'rescue', 'questions'].includes(step)
+  const inChapter = ['read', 'feedback', 'rescue', 'explore', 'questions'].includes(step)
   const back = () => {
     if (inChapter && !window.confirm('Leave this chapter? You can come back to it any time.')) return
     recorder.reset()
     window.speechSynthesis?.cancel()
     if (step === 'map') return onExit()
     if (step === 'intro') return setStep('map')
+    if (step === 'pathway') {
+      setPending(null)
+      return setStep('intro')
+    }
     if (inChapter) return setStep('intro')
     if (['draw', 'write', 'celebrate'].includes(step) && chapter) return setStep('next')
     return setStep('map')
   }
 
   return (
-    <main className="welcome">
+    <main className={`welcome ${BACKGROUNDS[step] ?? ''}`}>
       <span className="blob blob-1" />
       <span className="blob blob-2" />
       <span className="blob blob-3" />
@@ -160,12 +242,34 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
         {step === 'map' && <AdventureMap student={student} onPick={openStory} />}
 
         {step === 'intro' && story && (
-          <StoryIntro
-            student={student}
-            story={story}
-            onStart={readChapter}
-            onBack={() => setStep('map')}
-            onGames={() => onArcade(story.id)}
+          <>
+            <StoryIntro
+              student={student}
+              story={story}
+              onStart={readChapter}
+              onBack={() => setStep('map')}
+              onGames={() => onArcade(story.id)}
+            />
+            <p className="pathway-row">
+              How I explore: <strong>{pathway?.name ?? 'not picked yet'}</strong>{' '}
+              <button
+                type="button"
+                className="t-chip small-chip"
+                onClick={() => {
+                  setPending(null)
+                  setStep('pathway')
+                }}
+              >
+                {pathway ? 'Change' : 'Pick'}
+              </button>
+            </p>
+          </>
+        )}
+
+        {step === 'pathway' && (
+          <PathwayPicker
+            current={student.pathway}
+            onPick={choosePathway}
           />
         )}
 
@@ -174,7 +278,7 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
             key={readKey}
             story={story}
             chapter={chapter}
-            preferences={preferences}
+            preferences={tools}
             initialMode={mode}
             onModeChange={setMode}
             recorder={recorder}
@@ -189,7 +293,8 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
             grade={student.grade}
             audioUrl={recorder.audioUrl}
             onRetry={() => readChapter(chapter)}
-            onNext={() => setStep(session.tricky.length ? 'rescue' : 'questions')}
+            coach={coach}
+            onNext={() => (session.tricky.length ? setStep('rescue') : toActivity())}
           />
         )}
 
@@ -202,7 +307,18 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
               setSession((s) => ({ ...s, rescued }))
               return { total: rescuePoints(student, rescued) }
             }}
-            onContinue={() => setStep('questions')}
+            onContinue={toActivity}
+          />
+        )}
+
+        {step === 'explore' && chapter && pathway && (
+          <PathwayActivity
+            plan={plan}
+            pathway={pathway}
+            passage={chapter.text}
+            grade={student.grade ?? story?.grade}
+            preferSpeak={preferSpeak}
+            onDone={() => setStep('questions')}
           />
         )}
 
@@ -212,6 +328,8 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
             sentences={session.sentences}
             highlights={session.highlights}
             preferSpeak={preferSpeak}
+            grade={student.grade ?? story?.grade}
+            pathway={pathway?.name ?? (preferences.join(', ').slice(0, 60) || 'read')}
             onDone={finishQuestions}
           />
         )}
@@ -274,7 +392,7 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
             )}
             {celebration.badges?.map((b) => (
               <div key={b.id} className="badge-card new inline">
-                <span className="badge-icon" aria-hidden="true">{b.icon}</span>
+                <span className="badge-icon" aria-hidden="true"><Icon e={b.icon} /></span>
                 <strong>New badge: {b.name}</strong> <span>{b.about}</span>
               </div>
             ))}

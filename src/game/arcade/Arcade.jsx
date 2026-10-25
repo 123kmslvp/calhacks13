@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Poppy from '../../components/Poppy.jsx'
+import { Icon } from '../../components/Art.jsx'
 import SpeakButton from '../../components/SpeakButton.jsx'
 import { STORIES } from '../../data/stories/index.js'
 import { applyGame, applyWordPractice } from '../../data/progress.js'
@@ -54,7 +55,7 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
   }
 
   return (
-    <main className="welcome">
+    <main className="welcome bg-floor">
       <span className="blob blob-1" />
       <span className="blob blob-2" />
       <span className="blob blob-3" />
@@ -200,7 +201,7 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
             {result.grewTo && <p className="earned-line">POP! Poppy grew into a {result.grewTo.name}!</p>}
             {result.badges.map((b) => (
               <div key={b.id} className="badge-card new inline">
-                <span className="badge-icon" aria-hidden="true">{b.icon}</span>
+                <span className="badge-icon" aria-hidden="true"><Icon e={b.icon} /></span>
                 <strong>New badge: {b.name}</strong>
               </div>
             ))}

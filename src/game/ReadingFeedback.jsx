@@ -12,7 +12,7 @@ function cheer(completion) {
 
 // Supportive feedback after reading aloud: words read correctly, words that
 // may need another try, reading pace (in kid words), and their recording.
-export default function ReadingFeedback({ chapter, result, grade, audioUrl, onNext, onRetry }) {
+export default function ReadingFeedback({ chapter, result, grade, audioUrl, coach, onNext, onRetry }) {
   const { aloud, tricky } = result
   const pace = !aloud.tapMode && aloud.seconds > 10 ? paceMessage(aloud.wcpm, grade) : null
   const message = cheer(aloud.completion)
@@ -59,6 +59,32 @@ export default function ReadingFeedback({ chapter, result, grade, audioUrl, onNe
         </div>
       )}
 
+      {coach === 'loading' && <p className="note">Poppy is listening back to your reading…</p>}
+      {coach && coach !== 'loading' && (
+        <div className="feedback good coach" role="status">
+          <p>
+            <strong>{coach.encouragement}</strong>
+          </p>
+          {coach.strengths.length > 0 && (
+            <ul className="coach-list">
+              {coach.strengths.map((s) => (
+                <li key={s}>{s}</li>
+              ))}
+            </ul>
+          )}
+          {coach.wordsToPractice.length > 0 && (
+            <p>
+              Let’s practice: <strong>{coach.wordsToPractice.join(', ')}</strong>
+            </p>
+          )}
+          <p>{coach.practiceTip}</p>
+          <p className="agent-meta">
+            <span className="agent-chip claude">Personalized by Claude</span>
+          </p>
+          <SpeakButton text={`${coach.encouragement} ${coach.practiceTip}`} />
+        </div>
+      )}
+
       {tricky.length > 0 && (
         <div className="practice">
           <h3 className="heading small">Tricky words</h3>
@@ -71,6 +97,10 @@ export default function ReadingFeedback({ chapter, result, grade, audioUrl, onNe
           </div>
         </div>
       )}
+
+      <p className="fine-print">
+        This is reading practice. Kernel Quest doesn’t replace a speech-language professional.
+      </p>
 
       <div className="step-nav">
         <button type="button" className="back" onClick={onRetry}>
