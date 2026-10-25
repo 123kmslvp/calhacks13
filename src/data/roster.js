@@ -4,7 +4,7 @@
 
 import { BADGES, emptyCounters } from './badges.js'
 
-const STORAGE_KEY = 'kernelquest.school.v4'
+const STORAGE_KEY = 'kernelquest.school.v5'
 
 export const TEACHER = {
   name: 'Ms. Lopez',
@@ -280,7 +280,7 @@ const SEED = {
     { id: 'room-14', name: 'Room 14' },
   ],
   students: [
-    seedStudent({ classId: 'room-12', firstName: 'Maya', lastName: 'Rivera', grade: 3, avatar: '🦊', password: 'corn42', parentEmails: ['rivera.family@example.com'], ability: 0.6, trend: 0.14, perWeek: 2, lastActive: 1, tools: ['listen', 'visuals', 'read'], tricky: ['sequence', 'debugging'], poppyItem: 'bow' }),
+    seedStudent({ classId: 'room-12', firstName: 'Maya', lastName: 'Rivera', grade: 3, avatar: '🦊', password: 'popcorn25', parentEmails: ['rivera.family@example.com'], ability: 0.6, trend: 0.14, perWeek: 2, lastActive: 1, tools: ['listen', 'visuals', 'read'], tricky: ['sequence', 'debugging'], poppyItem: 'bow' }),
     seedStudent({ classId: 'room-12', firstName: 'Noah', lastName: 'Garcia', grade: 3, avatar: '🐸', password: 'snack31', parentEmails: [], ability: 0.36, trend: 0.1, perWeek: 1.3, lastActive: 6, tools: ['listen', 'speak', 'visuals'], tricky: ['strange', 'sequence', 'listened', 'debugging'] }),
     seedStudent({ classId: 'room-12', firstName: 'Zoe', lastName: 'Nguyen', grade: 3, avatar: '🐙', password: 'fluffy58', parentEmails: ['lan.nguyen@example.com', 'minh.nguyen@example.com'], ability: 0.7, trend: 0.06, perWeek: 2, lastActive: 3, tools: ['readAloud', 'read', 'speak'], tricky: ['debugging'] }),
     seedStudent({ classId: 'room-12', firstName: 'Sofia', lastName: 'Martinez', grade: 4, avatar: '🐨', password: 'butter23', parentEmails: ['martinez.home@example.com'], ability: 0.52, trend: 0.18, perWeek: 2.5, lastActive: 0, tools: ['readAloud', 'visuals', 'type'], tricky: ['sequence', 'strange'] }),

@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import SpeakButton from '../components/SpeakButton.jsx'
+import { askAgent } from '../services/agents.js'
 import AnswerBox from './AnswerBox.jsx'
 import {
   QUESTION_TYPES,
@@ -17,8 +18,9 @@ const sentenceText = (s) => s.map((w) => w.display).join(' ')
 // Comprehension questions for one chapter. Multiple choice gives a hint and
 // points back to the story after a miss; open questions ask the student to
 // explain with evidence and get one follow-up question to stretch their
-// thinking.
-export default function Questions({ chapter, sentences, highlights, preferSpeak, onDone }) {
+// thinking. Open answers go to the Claude Socratic agent (via our backend);
+// if it isn't available, the built-in rules below take over.
+export default function Questions({ chapter, sentences, highlights, preferSpeak, grade, pathway, onDone }) {
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState([])
   const startedRef = useRef(Date.now())
@@ -64,6 +66,9 @@ export default function Questions({ chapter, sentences, highlights, preferSpeak,
           sentences={sentences}
           highlights={highlights}
           preferSpeak={preferSpeak}
+          passage={chapter.text}
+          grade={grade}
+          pathway={pathway}
           onAnswer={record}
         />
       ) : (
@@ -190,10 +195,16 @@ function ChoiceQuestion({ question, sentences, onAnswer }) {
   )
 }
 
-function OpenQuestion({ question, sentences, highlights, preferSpeak, onAnswer }) {
+// Claude's verdict, expressed in the quality levels the rest of the app
+// already understands (so Pop Points and teacher charts keep working).
+const agentQuality = (a) => (a.isCorrect && a.points >= 8 ? 'strong' : a.isCorrect || a.points >= 4 ? 'partial' : 'short')
+
+function OpenQuestion({ question, sentences, highlights, preferSpeak, passage, grade, pathway, onAnswer }) {
   const [text, setText] = useState('')
   const [evidence, setEvidence] = useState(null) // sentence index
-  const [phase, setPhase] = useState('answer') // answer | followUp | done
+  // answer | thinking | agent (Claude's feedback) | followUp | done (built-in rules)
+  const [phase, setPhase] = useState('answer')
+  const [agent, setAgent] = useState(null) // Socratic agent response
   const [followUp, setFollowUp] = useState(null)
   const [followText, setFollowText] = useState('')
   const [result, setResult] = useState(null)
@@ -213,7 +224,8 @@ function OpenQuestion({ question, sentences, highlights, preferSpeak, onAnswer }
   const evaluate = (answerText) =>
     evaluateOpen(question, answerText, evidence !== null ? sentenceStrings[evidence] : null, sentenceStrings)
 
-  const submit = () => {
+  // Built-in rules: used whenever the Claude agent can't answer.
+  const checkLocally = () => {
     const evaluation = evaluate(text)
     const next = followUpFor(question, evaluation)
     if (next) {
@@ -222,6 +234,48 @@ function OpenQuestion({ question, sentences, highlights, preferSpeak, onAnswer }
     } else {
       finish(evaluation, null)
     }
+  }
+
+  const submit = async () => {
+    setPhase('thinking')
+    const pickedSentence = evidence !== null ? sentenceStrings[evidence] : null
+    const reply = await askAgent('socratic', {
+      passage,
+      question: question.prompt,
+      studentAnswer: (pickedSentence ? `${text.trim()} (The sentence I picked as proof: "${pickedSentence}")` : text.trim()).slice(0, 1500),
+      grade,
+      pathway,
+      // Hidden from the student; the agent uses them only to judge the answer.
+      expectedAnswer: question.sample?.slice(0, 600),
+      evidence: question.evidence?.join(' ').slice(0, 600),
+    })
+    // Only a real Claude answer replaces the built-in check. Demo or fallback
+    // replies from the server are less detailed than our own rules.
+    if (reply?.meta?.source === 'claude' && reply.feedback && reply.followUpQuestion) {
+      setAgent(reply)
+      setPhase('agent')
+    } else {
+      checkLocally()
+    }
+  }
+
+  const finishWithAgent = () => {
+    const quality = agentQuality(agent)
+    const followAnswer = followText.trim() || null
+    onAnswer({
+      questionId: question.id,
+      type: 'evidence',
+      open: true,
+      prompt: question.prompt,
+      text,
+      evidence: evidence !== null ? sentenceStrings[evidence] : null,
+      followUp: agent.followUpQuestion,
+      followUpAnswer: followAnswer,
+      quality,
+      mode: usedSpeech.current ? 'spoken' : 'typed',
+      tries: 1,
+      score: openScore(quality, !!followAnswer),
+    })
   }
 
   const finish = (evaluation, followAnswer) => {
@@ -288,6 +342,56 @@ function OpenQuestion({ question, sentences, highlights, preferSpeak, onAnswer }
           <div className="q-next">
             <button type="button" className="start" disabled={!text.trim()} onClick={submit}>
               Check
+            </button>
+          </div>
+        </>
+      )}
+
+      {phase === 'thinking' && (
+        <>
+          <div className="your-answer">
+            “{text}”
+          </div>
+          <div className="feedback gentle poppy-thinking" role="status" aria-live="polite">
+            <img className="poppy-img poppy-img-small" src="/chick_regular_sprite.png" alt="Poppy the Kernel Quest chick" />
+            <p>Poppy is thinking about your answer…</p>
+          </div>
+        </>
+      )}
+
+      {phase === 'agent' && agent && (
+        <>
+          <div className="your-answer">
+            “{text}”
+          </div>
+          <div className={agent.isCorrect ? 'feedback good' : 'feedback gentle'} role="status">
+            <p>
+              <strong>{agent.encouragement}</strong>
+            </p>
+            <p>{agent.feedback}</p>
+            <p className="agent-meta">
+              <span className="agent-chip">Skill: {agent.skillPracticed}</span>
+              <span className="agent-chip">⭐ {agent.points} thinking points</span>
+              {agent.meta?.source === 'claude' && <span className="agent-chip claude">Personalized by Claude</span>}
+            </p>
+            <SpeakButton text={`${agent.encouragement} ${agent.feedback}`} />
+          </div>
+          <div className="follow-up" role="status">
+            <p>{agent.followUpQuestion}</p>
+            <SpeakButton text={agent.followUpQuestion} />
+          </div>
+          <AnswerBox
+            value={followText}
+            onChange={setFollowText}
+            onSpeak={markSpoken}
+            preferSpeak={preferSpeak}
+            label="Tell me more"
+            placeholder="Tell me more… (you can skip this)"
+            starters={[]}
+          />
+          <div className="q-next">
+            <button type="button" className="start" onClick={finishWithAgent}>
+              Next →
             </button>
           </div>
         </>

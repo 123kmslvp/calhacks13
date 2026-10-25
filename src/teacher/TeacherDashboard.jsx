@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Art } from '../components/Art.jsx'
 import {
   CATEGORIES,
   GRADES,
@@ -14,6 +15,7 @@ import ClassInsights from './ClassInsights.jsx'
 import ImportStudents from './ImportStudents.jsx'
 import { studentInsights } from './insights.js'
 import ParentReports from './ParentReports.jsx'
+import PopcornPicker from './PopcornPicker.jsx'
 import StudentDetail from './StudentDetail.jsx'
 import { CategoryChip, lastActiveText, ordinal } from './shared.jsx'
 import './teacher.css'
@@ -173,8 +175,26 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
       >
         📊 Class insights
       </button>
+      <button
+        role="tab"
+        aria-selected={view === 'popcorn'}
+        className={view === 'popcorn' ? 'seg-btn active' : 'seg-btn'}
+        onClick={() => setView('popcorn')}
+      >
+        <Art name="popcorn" className="tab-art" /> Popcorn reading
+      </button>
     </div>
   )
+
+  if (view === 'popcorn') {
+    return (
+      <TeacherShell onLogout={onLogout}>
+        {classBar}
+        {viewTabs}
+        <PopcornPicker key={activeClass.id} roster={roster} className={activeClass.name} />
+      </TeacherShell>
+    )
+  }
 
   if (view === 'insights') {
     return (
@@ -555,7 +575,7 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
           .sort((a, b) => a.firstName.localeCompare(b.firstName))
           .map((s) => (
             <div className="login-card" key={s.id}>
-              <div className="login-card-title">🍿 Kernel Quest · {activeClass.name}</div>
+              <div className="login-card-title"><Art name="popcorn" className="brand-art" /> Kernel Quest · {activeClass.name}</div>
               <div className="login-card-name">
                 {s.avatar} {s.firstName} {s.lastName}
               </div>
@@ -573,7 +593,7 @@ function TeacherShell({ onLogout, children }) {
     <div className="teacher">
       <header className="teacher-top">
         <div>
-          <span className="teacher-brand">🍿 Kernel Quest</span>
+          <span className="teacher-brand"><Art name="popcorn" className="brand-art" /> Kernel Quest</span>
           <span className="teacher-class">{TEACHER.name}</span>
         </div>
         <button className="t-btn" onClick={onLogout}>
@@ -581,6 +601,10 @@ function TeacherShell({ onLogout, children }) {
         </button>
       </header>
       <main className="teacher-main">{children}</main>
+      <p className="teacher-note">
+        Kernel Quest is an educational support tool. It gives reading-practice feedback only and does not replace a
+        speech-language pathologist or a professional evaluation.
+      </p>
     </div>
   )
 }

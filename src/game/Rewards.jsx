@@ -1,4 +1,5 @@
 import Poppy from '../components/Poppy.jsx'
+import { Icon } from '../components/Art.jsx'
 import SpeakButton from '../components/SpeakButton.jsx'
 
 const STAR_REASONS = ['Read', 'Answered', 'Explained']
@@ -35,7 +36,7 @@ export default function Rewards({ result, session, onContinue }) {
             {grewTo.item && (
               <span>
                 {' '}
-                New: {grewTo.item.icon}
+                New: <Poppy size="chip" item={grewTo.item} />
               </span>
             )}
           </div>
@@ -57,7 +58,7 @@ export default function Rewards({ result, session, onContinue }) {
           <ul className="badge-list">
             {badges.map((b) => (
               <li key={b.id} className="badge-card new">
-                <span className="badge-icon" aria-hidden="true">{b.icon}</span>
+                <span className="badge-icon" aria-hidden="true"><Icon e={b.icon} /></span>
                 <strong>{b.name}</strong>
               </li>
             ))}

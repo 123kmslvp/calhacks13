@@ -15,6 +15,8 @@ Return:
 - followUpQuestion: ONE personalized question that builds on what they actually wrote and asks them to explain their reasoning or find evidence in the story (for example "Which sentence helped you decide that?" or "What would change if...?"). Never answer it for them. If focus words are given and one fits naturally, you may use it to ask about its meaning in the story.
 - skillPracticed: one of main idea, details, vocabulary, inference, evidence, sequence, character, or theme.
 - points: a whole number 1-10. Give 1-3 for a try that is off track, 4-7 for a reasonable answer, 8-10 for a strong answer with reasoning or evidence.
+Match your wording to the learning pathway: "Visual Explorer" -> mention what they picture or see in the story; "Listen and Speak" -> short, easy-to-hear sentences; "Read and Write" -> encourage adding written detail or a new word; "Interactive Explorer" -> invite predictions and big questions.
+Some "questions" are activity prompts, not quiz questions. If the prompt asks the student to read a sentence aloud, comment on their effort and expression and ask what that sentence tells us. If it asks them to write their own question, praise a question that digs into the story, then ask which part made them wonder. If the expected answer says the prompt contains a claim that is WRONG, judge whether the student found what is actually wrong, and guide them to the sentence that proves it without stating the fix.
 Be age-appropriate. Never say the student is wrong in a harsh way; say "not quite yet" or "let's look again".`
 
 const STOP = new Set('the a an and or but of to in on at is was were it that this he she they his her with for as by from be are had has'.split(' '))

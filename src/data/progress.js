@@ -35,7 +35,13 @@ export const POPPY_STAGES = [
   { id: 'super', name: 'Super Poppy', min: 1000, about: 'Super Poppy! The best popcorn in the whole kingdom!', item: { id: 'crown', icon: '👑', label: 'Crown' } },
 ]
 
-export const POPPY_ITEMS = POPPY_STAGES.filter((s) => s.item).map((s) => ({ ...s.item, min: s.min }))
+// Dress-up choices. The robe isn't tied to a growth stage, so it unlocks on its
+// own between Big Pop and Super Poppy. (Its emoji is only a fallback; Poppy
+// wears the drawn robe.)
+export const POPPY_ITEMS = [
+  ...POPPY_STAGES.filter((s) => s.item).map((s) => ({ ...s.item, min: s.min })),
+  { id: 'robe', icon: '🧥', label: 'Royal robe', min: 850 },
+].sort((a, b) => a.min - b.min)
 
 export const POINT_RULES = [
   { icon: '📖', label: 'Read a chapter (any way you like)', points: POINTS.readChapter },

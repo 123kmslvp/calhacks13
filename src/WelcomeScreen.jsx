@@ -1,13 +1,16 @@
+import Poppy from './components/Poppy.jsx'
+import { Logo } from './components/Art.jsx'
+
 const TOTAL_STEPS = 7
 
 export default function WelcomeScreen({ onStart }) {
   return (
-    <main className="welcome">
+    <main className="welcome bg-castle">
       <span className="blob blob-1" />
       <span className="blob blob-2" />
       <span className="blob blob-3" />
 
-      <section className="card">
+      <section className="card card-title">
         <div className="progress" aria-label={`Step 1 of ${TOTAL_STEPS}`}>
           <div className="dots">
             {Array.from({ length: TOTAL_STEPS }, (_, i) => (
@@ -18,20 +21,15 @@ export default function WelcomeScreen({ onStart }) {
         </div>
 
         <h1 className="title">
-          <span>Kernel</span> <span>Quest</span>
+          <span className="sr-only">Kernel Quest</span>
+          <Logo />
         </h1>
 
-        <div className="poppy" role="img" aria-label="Poppy the popcorn kernel">
-          <span className="poppy-emoji">🍿</span>
-          <div className="poppy-face">
-            <span className="eye" />
-            <span className="eye" />
-          </div>
-        </div>
+        <Poppy size="xl" />
 
         <p className="message">
-          Hi, I'm <strong>Poppy</strong>! 🎉 Come pop along with me on a
-          super fun adventure to learn how computers think!
+          Hi, reader! I’m <strong>Poppy</strong>. Let’s read, think, and grow
+          together—one story at a time!
         </p>
 
         <button className="start" onClick={onStart}>

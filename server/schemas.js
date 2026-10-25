@@ -115,6 +115,20 @@ export const SessionRequest = z.object({
 
 // ---------- Claude responses ----------
 
+export const PATHWAY_KINDS = ['visual', 'listen-speak', 'read-write', 'interactive']
+export const PROMPT_TYPES = [
+  'visual-clue',
+  'diagram',
+  'read-aloud',
+  'spoken-response',
+  'vocabulary',
+  'writing',
+  'prediction',
+  'choose-path',
+  'ask-question',
+  'check-claim',
+]
+
 export const StoryResponse = z.object({
   vocabularySupport: z.array(
     z.object({ word: z.string(), studentFriendlyMeaning: z.string(), example: z.string() })
@@ -125,6 +139,20 @@ export const StoryResponse = z.object({
     title: z.string(),
     steps: z.array(z.string()),
     estimatedMinutes: z.number(),
+  }),
+  // The learning activity itself, shaped by the student's pathway.
+  pathwayActivity: z.object({
+    kind: z.enum(PATHWAY_KINDS),
+    title: z.string(),
+    intro: z.string(),
+    prompts: z.array(
+      z.object({
+        type: z.enum(PROMPT_TYPES),
+        text: z.string(),
+        // Hidden guidance for the Socratic agent (never shown to students).
+        answerKey: z.string(),
+      })
+    ),
   }),
 })
 

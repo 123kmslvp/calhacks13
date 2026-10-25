@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
+import { Icon } from './components/Art.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
 import { AVATARS, TEACHER } from './data/roster.js'
 import { POPPY_ITEMS, isItemUnlocked, poppyGrowth } from './data/progress.js'
@@ -78,7 +79,7 @@ export default function StudentPage({ student, className, onLogout, onStart, onP
 
         <div className="home-choices">
           <button type="button" className="home-card home-read" onClick={() => onStart({ preferences: [] })}>
-            <span className="home-icon" aria-hidden="true">📚</span>
+            <span className="home-icon" aria-hidden="true"><Icon e="📚" /></span>
             <strong>Read a story</strong>
                       </button>
           <button type="button" className={gamesLocked ? 'home-card home-play locked' : 'home-card home-play'} onClick={onArcade}>

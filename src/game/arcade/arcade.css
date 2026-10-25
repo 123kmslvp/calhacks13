@@ -12,7 +12,7 @@
 .game-card strong { font-size: 1.25rem; }
 .game-icon { font-size: 2.6rem; animation: float 3s ease-in-out infinite; }
 .game-sequence { background: #fff6e0; }
-.game-vocab { background: #fff0f6; }
+.game-vocab { background: #fff9e6; }
 .game-evidence { background: #e5f6ff; }
 .game-cloze { background: #e2f8ee; }
 .skill-chip { margin-top: 6px; padding: 2px 10px; font-size: 0.8rem; font-weight: 700; background: rgba(255, 255, 255, 0.8); border-radius: 999px; }
@@ -24,13 +24,13 @@
 /* Sequencer */
 .sequence-slots { display: grid; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
 .slot { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; font-size: 1.05rem; color: #9a83b5; border: 3px dashed #e3d4fb; border-radius: 16px; }
-.slot.next { border-color: #ffb3cf; background: #fff6fa; }
+.slot.next { border-color: #e8b93a; background: #fff9e6; }
 .slot.filled { color: inherit; background: #e2f8ee; border: 3px solid #8de0c4; animation: pop 0.3s ease-out; }
 .slot-num { flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center; font-weight: 700; color: #fff; background: #a685e0; border-radius: 50%; }
 .sequence-cards { display: grid; gap: 8px; }
 .event-card { padding: 12px 14px; font-family: inherit; font-size: 1.05rem; color: inherit; text-align: left; background: #fff; border: 3px solid #e3d4fb; border-radius: 16px; cursor: pointer; }
 .event-card:hover { border-color: #c4a8f3; transform: translateY(-2px); }
-.shake { animation: shake 0.4s; border-color: #ffb3cf !important; }
+.shake { animation: shake 0.4s; border-color: #e8b93a !important; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
 /* Vocab Pop */
