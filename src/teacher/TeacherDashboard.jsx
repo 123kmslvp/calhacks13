@@ -10,6 +10,7 @@ import {
   parseEmails,
 } from '../data/roster.js'
 import { reportStatus } from '../data/reports.js'
+import ClassInsights from './ClassInsights.jsx'
 import ImportStudents from './ImportStudents.jsx'
 import { studentInsights } from './insights.js'
 import ParentReports from './ParentReports.jsx'
@@ -164,8 +165,31 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
       >
         ✉️ Parent reports{reportsDue > 0 && <span className="badge">{reportsDue}</span>}
       </button>
+      <button
+        role="tab"
+        aria-selected={view === 'insights'}
+        className={view === 'insights' ? 'seg-btn active' : 'seg-btn'}
+        onClick={() => setView('insights')}
+      >
+        📊 Class insights
+      </button>
     </div>
   )
+
+  if (view === 'insights') {
+    return (
+      <TeacherShell onLogout={onLogout}>
+        {classBar}
+        {viewTabs}
+        <ClassInsights
+          key={activeClass.id}
+          roster={roster}
+          className={activeClass.name}
+          onSelectStudent={setSelectedId}
+        />
+      </TeacherShell>
+    )
+  }
 
   if (view === 'reports') {
     return (
