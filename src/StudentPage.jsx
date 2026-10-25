@@ -1,21 +1,13 @@
 import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
+import { TEACHER, TOOLS } from './data/roster.js'
 
-// Framed as tools to try today, not traits of the student — any mix is fine,
-// none are required, and they can be switched at any time.
-const PREFERENCES = [
-  { id: 'read', icon: '📖', label: 'Read it myself' },
-  { id: 'listen', icon: '🎧', label: 'Listen to the story' },
-  { id: 'visuals', icon: '🖼️', label: 'Show me pictures' },
-  { id: 'readAloud', icon: '🗣️', label: 'Read it out loud' },
-  { id: 'type', icon: '⌨️', label: 'Type my answers' },
-  { id: 'speak', icon: '🎤', label: 'Say my answers' },
-]
-
+// Tools are framed as choices for today, not traits of the student — any mix
+// is fine, none are required, and they can be switched at any time.
 const ordinal = (n) => ({ 1: '1st', 2: '2nd', 3: '3rd' })[n] ?? `${n}th`
 
-export default function StudentPage({ student, onLogout, onStart }) {
+export default function StudentPage({ student, className, onLogout, onStart }) {
   const [preferences, setPreferences] = useState([])
 
   const togglePref = (id) =>
@@ -23,7 +15,7 @@ export default function StudentPage({ student, onLogout, onStart }) {
       prefs.includes(id) ? prefs.filter((p) => p !== id) : [...prefs, id]
     )
 
-  const greeting = `Hey ${student.name}! How do you want to explore today? Pick as many as you like. You can switch anytime!`
+  const greeting = `Hey ${student.firstName}! How do you want to explore today? Pick as many as you like. You can switch anytime!`
 
   return (
     <main className="welcome">
@@ -35,9 +27,9 @@ export default function StudentPage({ student, onLogout, onStart }) {
         <header className="student-bar">
           <span className="student-avatar" aria-hidden="true">{student.avatar}</span>
           <div className="student-info">
-            <strong>{student.name}</strong>
+            <strong>{student.firstName}</strong>
             <span>
-              {ordinal(student.grade)} grade · {student.teacher}'s class
+              {ordinal(student.grade)} grade · {className ?? `${TEACHER.name}'s class`}
             </span>
           </div>
           <div className="points" aria-label={`${student.points} points`}>
@@ -48,7 +40,7 @@ export default function StudentPage({ student, onLogout, onStart }) {
         <div className="bubble">
           <Poppy size="small" />
           <p className="message">
-            Hey <strong>{student.name}</strong>! 🎉 How do you want to explore today?
+            Hey <strong>{student.firstName}</strong>! 🎉 How do you want to explore today?
           </p>
           <SpeakButton text={greeting} />
         </div>
@@ -63,7 +55,7 @@ export default function StudentPage({ student, onLogout, onStart }) {
             <h2 className="heading" id="explore-heading">Pick your tools</h2>
             <p className="note">Pick as many as you like — you can switch anytime!</p>
             <div className="pref-list">
-              {PREFERENCES.map((pref) => {
+              {TOOLS.map((pref) => {
                 const on = preferences.includes(pref.id)
                 return (
                   <button
