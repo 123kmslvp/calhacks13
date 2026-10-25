@@ -3,7 +3,8 @@ import WelcomeScreen from './WelcomeScreen.jsx'
 import LoginPage from './LoginPage.jsx'
 import StudentPage from './StudentPage.jsx'
 import ProgressPage from './ProgressPage.jsx'
-import ReadAloudGame from './game/ReadAloudGame.jsx'
+import QuestApp from './game/QuestApp.jsx'
+import Arcade from './game/arcade/Arcade.jsx'
 import TeacherLogin from './teacher/TeacherLogin.jsx'
 import TeacherDashboard from './teacher/TeacherDashboard.jsx'
 import { loadData, resetData, saveData } from './data/roster.js'
@@ -13,8 +14,12 @@ export default function App() {
   const [data, setData] = useState(loadData)
   const [studentId, setStudentId] = useState(null)
   const [preferences, setPreferences] = useState([])
+  const [progressFrom, setProgressFrom] = useState('student')
+  const [arcadeStory, setArcadeStory] = useState(null)
 
-  useEffect(() => saveData(data), [data])
+  useEffect(() => {
+    saveData(data)
+  }, [data])
 
   const student = data.students.find((s) => s.id === studentId)
   const studentClass = data.classes.find((c) => c.id === student?.classId)
@@ -59,40 +64,39 @@ export default function App() {
       <StudentPage
         student={student}
         className={studentClass?.name}
-        onProgress={() => setPage('progress')}
+        onProgress={() => {
+          setProgressFrom('student')
+          setPage('progress')
+        }}
+        onArcade={() => {
+          setProgressFrom('student')
+          setArcadeStory(null)
+          setPage('arcade')
+        }}
+        onUpdate={(changes) =>
+          setData((d) => ({
+            ...d,
+            students: d.students.map((s) => (s.id === student.id ? { ...s, ...changes } : s)),
+          }))
+        }
         onLogout={() => {
           setStudentId(null)
           setPage('login')
         }}
         onStart={({ preferences }) => {
           setPreferences(preferences)
-          // Record the session so the teacher dashboard stays up to date.
+          // Remember which ways of exploring they chose, for the teacher.
           setData((d) => ({
             ...d,
             students: d.students.map((s) => {
               if (s.id !== student.id) return s
               const toolsUsed = { ...s.toolsUsed }
               preferences.forEach((p) => (toolsUsed[p] = (toolsUsed[p] ?? 0) + 1))
-              return { ...s, sessions: s.sessions + 1, lastActive: new Date().toISOString(), toolsUsed }
+              return { ...s, lastActive: new Date().toISOString(), toolsUsed }
             }),
           }))
           setPage('game')
         }}
-      />
-    )
-  }
-
-  if (page === 'progress') {
-    return (
-      <ProgressPage
-        student={student}
-        onBack={() => setPage('student')}
-        onSelectItem={(poppyItem) =>
-          setData((d) => ({
-            ...d,
-            students: d.students.map((s) => (s.id === student.id ? { ...s, poppyItem } : s)),
-          }))
-        }
       />
     )
   }
@@ -103,13 +107,51 @@ export default function App() {
       students: d.students.map((s) => (s.id === updated.id ? updated : s)),
     }))
 
+  const overlay =
+    page === 'progress' ? (
+      <ProgressPage
+        student={student}
+        onBack={() => setPage(progressFrom)}
+        onSelectItem={(poppyItem) => saveStudent({ ...student, poppyItem })}
+        onRead={() => setPage('game')}
+        onArcade={() => {
+          setArcadeStory(null)
+          setPage('arcade')
+        }}
+      />
+    ) : page === 'arcade' ? (
+      <Arcade
+        student={student}
+        initialStoryId={arcadeStory}
+        exitLabel={progressFrom === 'game' ? 'Back to story' : 'Home'}
+        onSaveStudent={saveStudent}
+        onExit={() => setPage(progressFrom)}
+      />
+    ) : null
+  if (overlay && progressFrom !== 'game') return overlay
+
+  // The quest stays mounted while the progress page is open, so the student
+  // comes back to exactly where they were.
   return (
-    <ReadAloudGame
-      student={student}
-      preferences={preferences}
-      onSaveStudent={saveStudent}
-      onExit={() => setPage('student')}
-      onProgress={() => setPage('progress')}
-    />
+    <>
+      {overlay}
+      <div hidden={!!overlay}>
+        <QuestApp
+          student={student}
+          preferences={preferences}
+          onSaveStudent={saveStudent}
+          onExit={() => setPage('student')}
+          onProgress={() => {
+            setProgressFrom('game')
+            setPage('progress')
+          }}
+          onArcade={(storyId) => {
+            setProgressFrom('game')
+            setArcadeStory(storyId)
+            setPage('arcade')
+          }}
+        />
+      </div>
+    </>
   )
 }

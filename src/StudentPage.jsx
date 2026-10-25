@@ -1,27 +1,20 @@
 import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
-import { TEACHER, TOOLS } from './data/roster.js'
+import { AVATARS, TEACHER } from './data/roster.js'
 import { POPPY_ITEMS, isItemUnlocked, poppyGrowth } from './data/progress.js'
+import { recommendStory } from './game/AdventureMap.jsx'
 
-// Tools are framed as choices for today, not traits of the student — any mix
-// is fine, none are required, and they can be switched at any time.
 const ordinal = (n) => ({ 1: '1st', 2: '2nd', 3: '3rd' })[n] ?? `${n}th`
 
-export default function StudentPage({ student, className, onLogout, onStart, onProgress }) {
-  const [preferences, setPreferences] = useState([])
-
-  const togglePref = (id) =>
-    setPreferences((prefs) =>
-      prefs.includes(id) ? prefs.filter((p) => p !== id) : [...prefs, id]
-    )
-
+// The student's home: two big choices — read a story or play games — plus
+// their progress. Everything else lives inside those.
+export default function StudentPage({ student, className, onLogout, onStart, onProgress, onUpdate, onArcade }) {
+  const [pickingBuddy, setPickingBuddy] = useState(false)
   const growth = poppyGrowth(student.points)
-  const poppyItem = POPPY_ITEMS.find(
-    (i) => i.id === student.poppyItem && isItemUnlocked(i.id, student.points)
-  )
-
-  const greeting = `Hey ${student.firstName}! How do you want to explore today? Pick as many as you like. You can switch anytime!`
+  const poppyItem = POPPY_ITEMS.find((i) => i.id === student.poppyItem && isItemUnlocked(i.id, student.points))
+  const next = recommendStory(student)
+  const greeting = `Hi ${student.firstName}! What do you want to do today? Read a story, or play games?`
 
   return (
     <main className="welcome">
@@ -31,7 +24,15 @@ export default function StudentPage({ student, className, onLogout, onStart, onP
 
       <section className="card card-wide">
         <header className="student-bar">
-          <span className="student-avatar" aria-hidden="true">{student.avatar}</span>
+          <button
+            type="button"
+            className="student-avatar avatar-btn"
+            aria-label={`Your buddy is ${student.avatar}. Change your buddy`}
+            aria-expanded={pickingBuddy}
+            onClick={() => setPickingBuddy(!pickingBuddy)}
+          >
+            {student.avatar}
+                      </button>
           <div className="student-info">
             <strong>{student.firstName}</strong>
             <span>
@@ -43,69 +44,62 @@ export default function StudentPage({ student, className, onLogout, onStart, onP
           </div>
         </header>
 
+        {pickingBuddy && (
+          <div className="buddy-picker" role="group" aria-label="Choose your reading buddy">
+            <span className="note">Pick your buddy</span>
+            <div className="buddy-grid">
+              {AVATARS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  className={a === student.avatar ? 'buddy selected' : 'buddy'}
+                  aria-pressed={a === student.avatar}
+                  onClick={() => {
+                    onUpdate({ avatar: a })
+                    setPickingBuddy(false)
+                  }}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="bubble">
           <Poppy size="small" stage={growth.stage} item={poppyItem} />
           <p className="message">
-            Hey <strong>{student.firstName}</strong>! 🎉 How do you want to explore today?
+            Hi <strong>{student.firstName}</strong>! What do you want to do?
           </p>
           <SpeakButton text={greeting} />
         </div>
 
+        <div className="home-choices">
+          <button type="button" className="home-card home-read" onClick={() => onStart({ preferences: [] })}>
+            <span className="home-icon" aria-hidden="true">📚</span>
+            <strong>Read a story</strong>
+                      </button>
+          <button type="button" className="home-card home-play" onClick={onArcade}>
+            <span className="home-icon" aria-hidden="true">🎮</span>
+            <strong>Play games</strong>
+          </button>
+        </div>
+
         <button type="button" className="poppy-teaser" onClick={onProgress}>
           <span className="teaser-text">
-            <strong>
-              Poppy is a {growth.stage.name}! ⭐ {student.points} Pop Points
-            </strong>
+            <strong>My progress</strong>
             <span className="grow-meter" aria-hidden="true">
               <span style={{ width: `${Math.max(growth.progress * 100, 4)}%` }} />
             </span>
-            <span className="comp-hint">
-              {growth.next
-                ? `${growth.toNext} more points to help Poppy grow into a ${growth.next.name}`
-                : 'Poppy is fully grown!'}
-            </span>
           </span>
-          <span className="teaser-go">My progress →</span>
+          <span className="teaser-go">→</span>
         </button>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            onStart({ preferences })
-          }}
-        >
-          <fieldset className="group" aria-labelledby="explore-heading">
-            <h2 className="heading" id="explore-heading">Pick your tools</h2>
-            <p className="note">Pick as many as you like — you can switch anytime!</p>
-            <div className="pref-list">
-              {TOOLS.map((pref) => {
-                const on = preferences.includes(pref.id)
-                return (
-                  <button
-                    key={pref.id}
-                    type="button"
-                    className={on ? 'pref selected' : 'pref'}
-                    aria-pressed={on}
-                    onClick={() => togglePref(pref.id)}
-                  >
-                    <span className="pref-icon" aria-hidden="true">{pref.icon}</span>
-                    <span>{pref.label}</span>
-                    <span className="pref-check" aria-hidden="true">{on ? '✓' : ''}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </fieldset>
-
-          <div className="step-nav">
-            <button type="button" className="back" onClick={onLogout}>
-              Log out
-            </button>
-            <button type="submit" className="start">
-              Start My Story 📖
-            </button>
-          </div>
-        </form>
+        <div className="step-nav">
+          <button type="button" className="back" onClick={onLogout}>
+            Log out
+          </button>
+        </div>
       </section>
     </main>
   )

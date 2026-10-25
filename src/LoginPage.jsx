@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
-import Progress from './components/Progress.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
 import { findStudent } from './data/roster.js'
-
-const TOTAL_STEPS = 7
 
 export default function LoginPage({ students, onBack, onLogin, onTeacher }) {
   const [username, setUsername] = useState('')
@@ -29,8 +26,6 @@ export default function LoginPage({ students, onBack, onLogin, onTeacher }) {
       <span className="blob blob-3" />
 
       <section className="card">
-        <Progress step={2} total={TOTAL_STEPS} />
-
         <div className="bubble">
           <Poppy size="small" />
           <p className="message">Welcome back, explorer! Type in your secret login to start.</p>
@@ -93,7 +88,7 @@ export default function LoginPage({ students, onBack, onLogin, onTeacher }) {
               ← Back
             </button>
             <button type="submit" className="start" disabled={!username.trim() || !password}>
-              Let's Go! 🚀
+              Let's Go!
             </button>
           </div>
         </form>
@@ -103,7 +98,7 @@ export default function LoginPage({ students, onBack, onLogin, onTeacher }) {
         </p>
         <p className="demo-hint">
           <button type="button" className="back" onClick={onTeacher}>
-            I'm a teacher 🍎
+            I'm a teacher
           </button>
         </p>
       </section>

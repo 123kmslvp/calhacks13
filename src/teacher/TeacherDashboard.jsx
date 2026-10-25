@@ -11,6 +11,7 @@ import {
 } from '../data/roster.js'
 import { reportStatus } from '../data/reports.js'
 import ImportStudents from './ImportStudents.jsx'
+import { studentInsights } from './insights.js'
 import ParentReports from './ParentReports.jsx'
 import StudentDetail from './StudentDetail.jsx'
 import { CategoryChip, lastActiveText, ordinal } from './shared.jsx'
@@ -22,6 +23,7 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
   const [selectedId, setSelectedId] = useState(null)
   const [filter, setFilter] = useState('all')
   const [showPasswords, setShowPasswords] = useState(false)
+  const [tableView, setTableView] = useState('progress')
   const [view, setView] = useState('students')
   const [addMode, setAddMode] = useState('one')
   const [form, setForm] = useState({ firstName: '', lastName: '', grade: 3, parentEmail: '' })
@@ -368,8 +370,27 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
 
       <section className="panel">
         <div className="panel-head">
-          <h2 className="panel-title">Students &amp; logins</h2>
+          <h2 className="panel-title">Students</h2>
+          <div className="seg" role="tablist" aria-label="Table view">
+            <button
+              role="tab"
+              aria-selected={tableView === 'progress'}
+              className={tableView === 'progress' ? 'seg-btn active' : 'seg-btn'}
+              onClick={() => setTableView('progress')}
+            >
+              📈 Progress
+            </button>
+            <button
+              role="tab"
+              aria-selected={tableView === 'logins'}
+              className={tableView === 'logins' ? 'seg-btn active' : 'seg-btn'}
+              onClick={() => setTableView('logins')}
+            >
+              🔑 Logins
+            </button>
+          </div>
           <div className="panel-actions">
+            {tableView === 'logins' && (
             <label className="toggle">
               <input
                 type="checkbox"
@@ -378,6 +399,7 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
               />
               Show passwords
             </label>
+            )}
             <button className="t-btn" onClick={() => window.print()} disabled={roster.length === 0}>
               🖨️ Print login cards
             </button>
@@ -390,6 +412,60 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
               ? 'No students yet — add them above, one at a time or by uploading a list.'
               : 'No students in this group right now.'}
           </p>
+        ) : tableView === 'progress' ? (
+          <div className="table-wrap">
+            <table className="roster">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Grade</th>
+                  <th>Group</th>
+                  <th title="Reading accuracy when reading aloud">Accuracy</th>
+                  <th title="Words read correctly per minute">WCPM</th>
+                  <th>Comprehension</th>
+                  <th>This week</th>
+                  <th>Tricky words</th>
+                  <th>Last active</th>
+                  <th>
+                    <span className="sr-only">Details</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((s) => {
+                  const info = studentInsights(s)
+                  const tricky = (s.reading?.trickyWords ?? []).filter((w) => !w.rescuedOn).length
+                  return (
+                    <tr key={s.id}>
+                      <td>
+                        <span className="row-avatar" aria-hidden="true">{s.avatar}</span>
+                        {s.firstName} {s.lastName}
+                        {justAdded.some((n) => n.id === s.id) && <span className="new-tag">New</span>}
+                      </td>
+                      <td>{ordinal(s.grade)}</td>
+                      <td><CategoryChip id={s.category} /></td>
+                      <td>{info.accuracy === null ? '—' : `${info.accuracy}%`}</td>
+                      <td>{info.wcpm ?? '—'}</td>
+                      <td>
+                        {info.comprehension === null ? '—' : `${info.comprehension}%`}
+                        {info.comprehensionTrend > 0 && <span className="trend-up"> ▲</span>}
+                      </td>
+                      <td>
+                        {info.sessionsThisWeek} {info.sessionsThisWeek === 1 ? 'session' : 'sessions'}
+                      </td>
+                      <td>{tricky || '—'}</td>
+                      <td>{lastActiveText(s.lastActive)}</td>
+                      <td>
+                        <button className="t-btn" onClick={() => setSelectedId(s.id)}>
+                          View →
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <div className="table-wrap">
             <table className="roster">

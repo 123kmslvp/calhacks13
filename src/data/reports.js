@@ -7,14 +7,20 @@ import { SKILLS, TEACHER, daysSince, topTools } from './roster.js'
 export const REPORT_INTERVAL_DAYS = 7
 
 const HOME_TIPS = {
-  patterns:
-    'Go on a pattern hunt together — stripes on a shirt, beats in a song, or tiles on the floor. Ask "what comes next?"',
-  sequencing:
-    'Ask them to explain the steps of something everyday, like making a sandwich, in the right order. Try doing a step out of order and see if they catch it!',
-  loops:
-    'Play "repeat it": clap a short rhythm 3 times, then let them invent one for you to repeat.',
-  debugging:
-    'When something goes wrong at home, ask "what could we try differently?" — that\'s exactly what debugging is.',
+  mainIdea:
+    'After a show or a book at bedtime, ask: "What was that mostly about?" and help them say it in one sentence.',
+  details:
+    'Ask "who, what, where?" questions about something they read or watched today. Remembering details gets easier with practice!',
+  vocabulary:
+    'Pick a "word of the day" from a book or sign you see together, and try to use it three times before bedtime.',
+  inference:
+    'While reading together, pause and ask: "How do you think the character feels? What makes you think that?"',
+  prediction:
+    'Before turning a page or starting a new episode, ask: "What do you think will happen next? Why?"',
+  factOpinion:
+    'Play "fact or opinion?" at dinner: "Pizza has cheese" (fact) vs. "Pizza is the best food" (opinion).',
+  evidence:
+    'When they share an idea about a story, ask "How do you know?" and help them find the part that proves it.',
 }
 
 // How each student tool reads in a sentence to a parent.
@@ -47,6 +53,10 @@ export function buildReport(student, className) {
   const name = student.firstName
   const since = student.lastReport ?? { points: 0, sessions: 0, skills: {} }
   const sessions = student.sessions - since.sessions
+  const weekAgo = Date.now() - 7 * 86400000
+  const thisWeek = (student.history ?? []).filter((h) => new Date(h.date) >= weekAgo)
+  const minutes = Math.round(thisWeek.reduce((sum, h) => sum + (h.seconds ?? 0), 0) / 60)
+  const stories = [...new Set(thisWeek.map((h) => h.storyTitle))]
   const points = student.points - since.points
 
   const skills = SKILLS.map((skill) => {
@@ -81,7 +91,7 @@ export function buildReport(student, className) {
 
   const activity =
     sessions > 0
-      ? `${name} played ${sessions} ${sessions === 1 ? 'time' : 'times'} and earned ${points} points (${student.points} total).`
+      ? `${name} read ${sessions} ${sessions === 1 ? 'chapter' : 'chapters'}${minutes ? ` (about ${minutes} minutes of reading)` : ''}${stories.length ? ` from ${stories.map((t) => `“${t}”`).join(' and ')}` : ''}, and earned ${points} Pop Points.`
       : `${name} didn't play this week — that's okay! A little encouragement to log in can go a long way.`
 
   const homeTip =
@@ -98,7 +108,7 @@ export function buildReport(student, className) {
   const text = [
     'Hello!',
     '',
-    `Here's ${name}'s week in Kernel Quest, where ${className ?? 'our class'} is learning how computers think through stories and puzzles.`,
+    `Here's ${name}'s week in Kernel Quest, where ${className ?? 'our class'} is building reading and thinking skills through stories.`,
     '',
     'THIS WEEK',
     `• ${activity}`,

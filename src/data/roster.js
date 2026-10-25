@@ -2,7 +2,9 @@
 // There's no backend yet, so everything lives in localStorage. Passwords must
 // never be stored or checked in the browser like this in a real deployment.
 
-const STORAGE_KEY = 'kernelquest.school.v3'
+import { BADGES, emptyCounters } from './badges.js'
+
+const STORAGE_KEY = 'kernelquest.school.v4'
 
 export const TEACHER = {
   name: 'Ms. Lopez',
@@ -12,11 +14,16 @@ export const TEACHER = {
 
 export const GRADES = [3, 4, 5]
 
+// Comprehension skills, one per kind of question in the stories.
+// `label` is for teachers and parents; `kid` and `hint` are for students.
 export const SKILLS = [
-  { id: 'patterns', label: 'Spotting patterns' },
-  { id: 'sequencing', label: 'Putting steps in order' },
-  { id: 'loops', label: 'Repeating with loops' },
-  { id: 'debugging', label: 'Finding and fixing bugs' },
+  { id: 'mainIdea', label: 'Finding the main idea', kid: 'Big idea', hint: 'What the story is mostly about' },
+  { id: 'details', label: 'Recalling key details', kid: 'Important details', hint: 'Remembering what happened' },
+  { id: 'vocabulary', label: 'Understanding vocabulary', kid: 'Word meanings', hint: 'Knowing what new words mean' },
+  { id: 'inference', label: 'Making inferences', kid: 'Reading between the lines', hint: 'Figuring out what the story hints at' },
+  { id: 'prediction', label: 'Making predictions', kid: 'Predicting', hint: 'Guessing what will happen next' },
+  { id: 'factOpinion', label: 'Fact vs. opinion', kid: 'Fact or opinion', hint: 'Telling what’s true from what someone thinks' },
+  { id: 'evidence', label: 'Explaining with evidence', kid: 'Using evidence', hint: 'Showing proof from the story' },
 ]
 
 export const TOOLS = [
@@ -29,7 +36,7 @@ export const TOOLS = [
 ]
 
 // Supportive groupings. These describe where a student is right now so the
-// teacher knows how to help — not a fixed label.
+// teacher knows how to help — not a fixed label. Students never see them.
 export const CATEGORIES = [
   { id: 'support', label: 'Needs additional support', icon: '🌱' },
   { id: 'progressing', label: 'Progressing', icon: '🌿' },
@@ -37,48 +44,206 @@ export const CATEGORIES = [
   { id: 'new', label: 'Just getting started', icon: '✨' },
 ]
 
-const AVATARS = ['🦊', '🐼', '🐸', '🦄', '🐙', '🐯', '🐧', '🦖', '🐝', '🤖']
+export const AVATARS = ['🦊', '🐼', '🐸', '🦄', '🐙', '🐯', '🐧', '🦖', '🐝', '🤖', '🐨', '🦉']
 const PASSWORD_WORDS = ['corn', 'pop', 'kernel', 'snack', 'butter', 'salty', 'crunch', 'fluffy']
 
-const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString()
+const DAY = 86400000
+const daysAgo = (n) => new Date(Date.now() - n * DAY).toISOString()
 // Local calendar day, e.g. "2026-10-24", used for the reading log.
 export const dayKey = (date = new Date()) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-const dayKeyAgo = (n) => dayKey(new Date(Date.now() - n * 86400000))
-
-export const COMPREHENSION = [
-  { id: 'accuracy', label: 'Reading accuracy', hint: 'Reading words correctly' },
-  { id: 'evidence', label: 'Using evidence', hint: 'Showing proof from the story' },
-  { id: 'retelling', label: 'Retelling the story', hint: 'Telling what happened in order' },
-  { id: 'vocabulary', label: 'Word meanings', hint: 'Knowing what new words mean' },
-]
 
 export const emptyReading = () => ({
   storiesCompleted: 0,
   log: [],
   words: [],
-  comprehension: Object.fromEntries(COMPREHENSION.map((c) => [c.id, null])),
   wins: [],
   chapterStars: {},
   trickyWords: [],
+  accuracy: null,
 })
 
-// Builds sample reading data: log is [daysAgo, minutes], words are
-// [word, mastered], wins are [type, daysAgo].
-function seedReading(storiesCompleted, log, words, comprehension, wins) {
-  return {
-    storiesCompleted,
-    log: log.map(([ago, minutes]) => ({ date: dayKeyAgo(ago), minutes })),
-    words: words.map(([word, mastered]) => ({ word, mastered })),
-    comprehension,
-    wins: wins.map(([type, ago]) => ({ type, date: dayKeyAgo(ago) })),
+// Moves a running score toward a new result gradually, so one tough day
+// doesn't erase progress (and one lucky day doesn't overstate it).
+export const blend = (before, now) => (before === null || before === undefined ? now : Math.round(before * 0.7 + now * 0.3))
+
+// ---------- Sample class ----------
+// Each sample student gets about eight weeks of believable reading sessions,
+// generated from a fixed seed so the demo looks the same every time.
+
+// Chapters from the story library (minus bonus worlds) that sample students have read.
+const SEED_CHAPTERS = [
+  { storyId: "bright-dragon", storyTitle: "Lumi and the Dark Forest", chapterId: "bright-dragon-1", chapterTitle: "Lumi and the Night", words: 106, grade: 3, vocab: ["shadows", "shivered", "explore"] },
+  { storyId: "bright-dragon", storyTitle: "Lumi and the Dark Forest", chapterId: "bright-dragon-2", chapterTitle: "A Glow in the Night", words: 117, grade: 3, vocab: ["shaky", "glow", "amazement"] },
+  { storyId: "community-garden", storyTitle: "The Garden on Maple Street", chapterId: "community-garden-1", chapterTitle: "The Empty Lot", words: 166, grade: 5, vocab: ["volunteers", "hauled", "forgotten"] },
+  { storyId: "community-garden", storyTitle: "The Garden on Maple Street", chapterId: "community-garden-2", chapterTitle: "Two Good Ideas", words: 166, grade: 5, vocab: ["disagreement", "afford", "pollinators"] },
+  { storyId: "lost-loop", storyTitle: "Poppy and the Lost Loop", chapterId: "lost-loop-1", chapterTitle: "The Missing Pattern", words: 83, grade: 3, vocab: ["pattern", "clue", "strange"] },
+  { storyId: "lost-loop", storyTitle: "Poppy and the Lost Loop", chapterId: "lost-loop-2", chapterTitle: "Steps in Order", words: 97, grade: 3, vocab: ["sequence", "order", "steps"] },
+  { storyId: "lost-loop", storyTitle: "Poppy and the Lost Loop", chapterId: "lost-loop-3", chapterTitle: "Fixing the Loop", words: 96, grade: 3, vocab: ["loop", "repeat", "debugging"] },
+  { storyId: "otter-pup", storyTitle: "Kai the Otter Pup", chapterId: "otter-pup-1", chapterTitle: "Floating on Mom", words: 119, grade: 3, vocab: ["grooming", "kelp", "drift"] },
+  { storyId: "otter-pup", storyTitle: "Kai the Otter Pup", chapterId: "otter-pup-2", chapterTitle: "The Rock Trick", words: 117, grade: 3, vocab: ["sleek", "tools", "raft"] },
+  { storyId: "river-race", storyTitle: "The Great River Race", chapterId: "river-race-1", chapterTitle: "Ready, Set, Paddle", words: 144, grade: 4, vocab: ["steer", "opposite", "journey"] },
+  { storyId: "river-race", storyTitle: "The Great River Race", chapterId: "river-race-2", chapterTitle: "The Rumble Rapids", words: 147, grade: 4, vocab: ["rapids", "channel", "rhythm"] },
+  { storyId: "why-popcorn-pops", storyTitle: "Poppy Asks: Why Does Popcorn Pop?", chapterId: "why-popcorn-pops-1", chapterTitle: "A Secret Inside", words: 141, grade: 4, vocab: ["microscope", "hull", "starch"] },
+  { storyId: "why-popcorn-pops", storyTitle: "Poppy Asks: Why Does Popcorn Pop?", chapterId: "why-popcorn-pops-2", chapterTitle: "Heat, Steam, Pop!", words: 144, grade: 4, vocab: ["steam", "pressure", "burst"] },
+]
+
+const SEED_RESPONSES = {
+  strong: [
+    {
+      question: 'How did Poppy know something was wrong in the Kernel Kingdom? Use details from the story.',
+      answer: 'The bells rang ding dong dong ding instead of the normal pattern. The story says "The pattern was broken!"',
+      evidence: 'The pattern was broken!',
+    },
+    {
+      question: 'What is a loop? Use the story to explain.',
+      answer: 'A loop is when you repeat the same steps again and again, like the bells ringing the song over and over.',
+      evidence: '"A loop will repeat the same steps."',
+    },
+  ],
+  growing: [
+    {
+      question: 'How did Poppy know something was wrong in the Kernel Kingdom? Use details from the story.',
+      answer: 'because the bells',
+      followUp: 'Can you tell me more? What was different about the bells?',
+      followUpAnswer: 'they rang in the wrong order',
+    },
+    {
+      question: 'Why did Poppy need to put the steps in order? Explain using the story.',
+      answer: 'so it works',
+      followUp: 'Which part of the story shows that? Tap a sentence that proves it.',
+      evidence: 'Then Poppy tried them one by one, and the first bell rang just right.',
+    },
+  ],
+}
+
+// Small deterministic random number generator (mulberry32).
+function seededRandom(seedText) {
+  let a = [...seedText].reduce((h, ch) => Math.imul(h ^ ch.charCodeAt(0), 16777619), 2166136261) >>> 0
+  return () => {
+    a |= 0
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }
 
-// lastWeek is where the student stood when their last parent report went out,
-// so the next report can show what changed.
-function seedStudent(classId, firstName, lastName, grade, avatar, password, parentEmails, points, skills, sessions, lastActiveDaysAgo, toolsUsed, lastWeek, reading = emptyReading()) {
-  return {
+const QUIZ_TYPES = [
+  ['mainIdea', 'vocabulary', 'inference', 'evidence'],
+  ['details', 'vocabulary', 'prediction', 'evidence'],
+  ['mainIdea', 'factOpinion', 'inference', 'evidence'],
+]
+const TYPE_EASE = { details: 0.1, vocabulary: 0.05, mainIdea: 0, factOpinion: 0, prediction: -0.03, inference: -0.1, evidence: -0.14 }
+const BASE_WCPM = { 3: 85, 4: 105, 5: 125 }
+
+function seedStudent({ classId, firstName, lastName, grade, avatar, password, parentEmails, ability, trend, perWeek, lastActive, tools, tricky = [], poppyItem = null }) {
+  const rand = seededRandom(firstName + lastName)
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+  // Stories closest to the student's grade come first, read in order.
+  const storyOrder = [...new Set(SEED_CHAPTERS.map((c) => c.storyId))].sort((a, b) => {
+    const ga = SEED_CHAPTERS.find((c) => c.storyId === a).grade
+    const gb = SEED_CHAPTERS.find((c) => c.storyId === b).grade
+    return Math.abs(ga - grade) - Math.abs(gb - grade) || a.localeCompare(b)
+  })
+  // Stronger readers have explored further; everyone rereads favorites.
+  const explored = clamp(Math.round(3 + ability * 6), 3, 10)
+  const readingOrder = storyOrder.flatMap((id) => SEED_CHAPTERS.filter((c) => c.storyId === id)).slice(0, explored)
+  const history = []
+  const weeks = 8
+  let n = 0
+  for (let w = 0; w < weeks; w++) {
+    const count = Math.max(0, Math.round(perWeek + (rand() - 0.5) * 1.5))
+    for (let i = 0; i < count; i++) {
+      const ago = lastActive + (weeks - 1 - w) * 7 + Math.floor(rand() * 6)
+      const t = 1 - ago / (weeks * 7)
+      const level = clamp(ability + trend * (t - 0.5) * 2 + (rand() - 0.5) * 0.08, 0.1, 0.98)
+      const chapter = readingOrder[n % readingOrder.length]
+      const mode = ['aloud', 'aloud', 'listen', 'read'][Math.floor(rand() * 4)]
+      const byType = {}
+      for (const type of QUIZ_TYPES[n % QUIZ_TYPES.length]) {
+        const p = clamp(level ** 1.4 + TYPE_EASE[type], 0.05, 0.97)
+        byType[type] = rand() < p ? 100 : rand() < p ? 60 : 20
+      }
+      const quizScore = Math.round(Object.values(byType).reduce((a, b) => a + b, 0) / 4)
+      const seconds = Math.round((chapter.words / (BASE_WCPM[grade] * (0.6 + 0.5 * level))) * 60)
+      history.push({
+        date: daysAgo(ago),
+        storyId: chapter.storyId,
+        storyTitle: chapter.storyTitle,
+        chapterId: chapter.chapterId,
+        chapterTitle: chapter.chapterTitle,
+        mode,
+        seconds,
+        ...(mode === 'aloud' && {
+          accuracy: Math.round(clamp(42 + 56 * level + (rand() - 0.5) * 6, 35, 99)),
+          wcpm: Math.round(BASE_WCPM[grade] * (0.55 + 0.55 * level) + (rand() - 0.5) * 10),
+        }),
+        quiz: { score: quizScore, byType },
+      })
+      n++
+    }
+  }
+  history.sort((a, b) => a.date.localeCompare(b.date))
+  if (history.length) history[history.length - 1].date = daysAgo(lastActive)
+
+  // Roll the history up into the student's current picture.
+  const skills = Object.fromEntries(SKILLS.map((s) => [s.id, null]))
+  const reading = emptyReading()
+  const counters = emptyCounters()
+  let points = 0
+  const logByDay = {}
+  for (const h of history) {
+    for (const [type, score] of Object.entries(h.quiz.byType)) skills[type] = blend(skills[type], score)
+    if (h.accuracy !== undefined) {
+      const before = reading.accuracy
+      reading.accuracy = blend(before, h.accuracy)
+      if (before !== null && reading.accuracy > before) counters.accuracyUps++
+      counters.readAloud++
+    }
+    // Effort stars: read it, answered the questions, explained with evidence.
+    const stars = 2 + (h.quiz.byType.evidence === 100 ? 1 : 0)
+    reading.chapterStars[h.chapterId] = Math.max(reading.chapterStars[h.chapterId] ?? 0, stars)
+    counters.modes[h.mode]++
+    if (h.quiz.byType.evidence === 100) counters.evidence++
+    if (Object.values(h.quiz.byType).includes(60)) counters.retries++
+    points += 10 + Math.round(h.quiz.score / 10) + (h.accuracy >= 90 ? 10 : 0)
+    const day = dayKey(new Date(h.date))
+    logByDay[day] = (logByDay[day] ?? 0) + Math.max(1, Math.round(h.seconds / 60)) + 3 // + question time
+  }
+  reading.log = Object.entries(logByDay).map(([date, minutes]) => ({ date, minutes }))
+  const readChapters = new Set(history.map((h) => h.chapterId))
+  reading.storiesCompleted = storyOrder.filter((id) =>
+    SEED_CHAPTERS.filter((c) => c.storyId === id).every((c) => readChapters.has(c.chapterId))
+  ).length
+  reading.words = readingOrder
+    .filter((c) => readChapters.has(c.chapterId))
+    .flatMap((c) => c.vocab)
+    .map((word, i) => ({ word, mastered: rand() < ability + 0.15 || i % 3 === 0 }))
+  reading.trickyWords = tricky.map((word, i) => ({
+    word,
+    display: word,
+    helps: 1 + (i % 2),
+    misses: 1 + ((i + 1) % 3),
+    rescuedOn: i === 0 && ability > 0.5 ? dayKey(new Date(Date.now() - 2 * DAY)) : null,
+    lastSeen: dayKey(new Date(Date.now() - (lastActive + i) * DAY)),
+    sentenceText: '',
+  }))
+  const recent = history.slice(-3)
+  if (recent.some((h) => h.quiz.byType.evidence === 100)) reading.wins.push({ type: 'evidence', date: dayKey(new Date(recent.at(-1).date)) })
+  if (counters.accuracyUps) reading.wins.push({ type: 'accuracy', date: dayKey(new Date(recent.at(-1).date)) })
+
+  const quality = ability >= 0.65 ? 'strong' : 'growing'
+  const responses = SEED_RESPONSES[quality].map((r, i) => ({
+    ...r,
+    date: daysAgo(lastActive + i * 5),
+    storyTitle: 'Poppy and the Lost Loop',
+    mode: tools.includes('speak') ? 'spoken' : 'typed',
+    quality,
+  }))
+  const lastWeekHistory = history.filter((h) => new Date(h.date) < new Date(Date.now() - 7 * DAY))
+
+  const student = {
     id: `${firstName}-${lastName}`.toLowerCase(),
     classId,
     firstName,
@@ -89,15 +254,24 @@ function seedStudent(classId, firstName, lastName, grade, avatar, password, pare
     password,
     points,
     skills,
-    sessions,
-    lastActive: daysAgo(lastActiveDaysAgo),
-    toolsUsed,
+    sessions: history.length,
+    lastActive: history.at(-1)?.date ?? null,
+    toolsUsed: Object.fromEntries(tools.map((t, i) => [t, history.length - i * 2])),
     notes: '',
     parentEmails,
-    lastReport: lastWeek && { sentAt: daysAgo(7), ...lastWeek },
+    lastReport: lastWeekHistory.length
+      ? { sentAt: daysAgo(7), points: Math.round(points * 0.85), sessions: lastWeekHistory.length, skills: Object.fromEntries(Object.entries(skills).map(([k, v]) => [k, v === null ? null : Math.max(0, v - Math.round(rand() * 8))])) }
+      : null,
     reading,
-    poppyItem: null,
+    history,
+    responses,
+    counters,
+    badges: [],
+    writings: [],
+    poppyItem,
   }
+  student.badges = BADGES.filter((b) => b.test(student)).map((b) => ({ id: b.id, date: student.lastActive }))
+  return student
 }
 
 const SEED = {
@@ -106,53 +280,35 @@ const SEED = {
     { id: 'room-14', name: 'Room 14' },
   ],
   students: [
-    seedStudent('room-12', 'Maya', 'Rivera', 3, '🦊', 'corn42', ['rivera.family@example.com'], 120, { patterns: 72, sequencing: 58, loops: 41, debugging: 35 }, 6, 1, { listen: 5, visuals: 4, read: 1 },
-      { points: 80, sessions: 4, skills: { patterns: 64, sequencing: 55, loops: 33, debugging: 35 } },
-      seedReading(3, [[0, 12], [1, 15], [3, 10], [5, 8]],
-        [['pattern', true], ['sequence', true], ['repeat', true], ['predict', true], ['clue', true], ['loop', false], ['debug', false], ['evidence', false]],
-        { accuracy: 78, evidence: 64, retelling: 58, vocabulary: 70 },
-        [['evidence', 0], ['accuracy', 1], ['story', 3]])),
-    seedStudent('room-12', 'Noah', 'Garcia', 3, '🐸', 'snack31', [], 60, { patterns: 45, sequencing: 38, loops: 30, debugging: 22 }, 4, 6, { listen: 4, speak: 3, visuals: 4 },
-      { points: 50, sessions: 3, skills: { patterns: 40, sequencing: 38, loops: 30, debugging: 22 } },
-      seedReading(1, [[6, 9], [8, 6]],
-        [['pattern', true], ['clue', true], ['repeat', false], ['sequence', false]],
-        { accuracy: 52, evidence: 30, retelling: 41, vocabulary: 45 },
-        [['story', 6], ['words', 8]])),
-    seedStudent('room-12', 'Zoe', 'Nguyen', 3, '🐙', 'fluffy58', ['lan.nguyen@example.com', 'minh.nguyen@example.com'], 210, { patterns: 66, sequencing: 74, loops: 55, debugging: 61 }, 9, 3, { readAloud: 5, read: 4, speak: 2 },
-      { points: 170, sessions: 7, skills: { patterns: 60, sequencing: 70, loops: 48, debugging: 61 } },
-      seedReading(4, [[3, 14], [4, 12], [5, 11]],
-        [['pattern', true], ['sequence', true], ['predict', true], ['clue', true], ['loop', true], ['debug', false], ['evidence', false], ['algorithm', false], ['repeat', true]],
-        { accuracy: 81, evidence: 55, retelling: 72, vocabulary: 66 },
-        [['streak', 3], ['words', 4]])),
-    seedStudent('room-14', 'Leo', 'Kim', 5, '🐼', 'pop77', ['jkim@example.com'], 340, { patterns: 88, sequencing: 81, loops: 76, debugging: 70 }, 12, 0, { read: 9, type: 10, visuals: 3 },
-      { points: 280, sessions: 9, skills: { patterns: 85, sequencing: 78, loops: 70, debugging: 62 } },
-      seedReading(6, [[0, 18], [1, 20], [2, 15], [4, 12]],
-        [['algorithm', true], ['sequence', true], ['loop', true], ['debug', true], ['evidence', true], ['predict', true], ['variable', false], ['condition', false]],
-        { accuracy: 88, evidence: 79, retelling: 83, vocabulary: 80 },
-        [['streak', 0], ['evidence', 1]])),
-    seedStudent('room-14', 'Ava', 'Thomas', 5, '🦄', 'kernel9', ['thomas.home@example.com'], 560, { patterns: 95, sequencing: 90, loops: 87, debugging: 82 }, 18, 2, { read: 15, type: 14 }, null,
-      seedReading(9, [[2, 25], [3, 22], [4, 20], [5, 18]],
-        [['algorithm', true], ['sequence', true], ['loop', true], ['debug', true], ['evidence', true], ['variable', true], ['condition', true], ['predict', true], ['efficient', false], ['binary', false]],
-        { accuracy: 95, evidence: 88, retelling: 90, vocabulary: 92 },
-        [['accuracy', 2], ['story', 3]])),
+    seedStudent({ classId: 'room-12', firstName: 'Maya', lastName: 'Rivera', grade: 3, avatar: '🦊', password: 'corn42', parentEmails: ['rivera.family@example.com'], ability: 0.6, trend: 0.14, perWeek: 2, lastActive: 1, tools: ['listen', 'visuals', 'read'], tricky: ['sequence', 'debugging'], poppyItem: 'bow' }),
+    seedStudent({ classId: 'room-12', firstName: 'Noah', lastName: 'Garcia', grade: 3, avatar: '🐸', password: 'snack31', parentEmails: [], ability: 0.36, trend: 0.1, perWeek: 1.3, lastActive: 6, tools: ['listen', 'speak', 'visuals'], tricky: ['strange', 'sequence', 'listened', 'debugging'] }),
+    seedStudent({ classId: 'room-12', firstName: 'Zoe', lastName: 'Nguyen', grade: 3, avatar: '🐙', password: 'fluffy58', parentEmails: ['lan.nguyen@example.com', 'minh.nguyen@example.com'], ability: 0.7, trend: 0.06, perWeek: 2, lastActive: 3, tools: ['readAloud', 'read', 'speak'], tricky: ['debugging'] }),
+    seedStudent({ classId: 'room-12', firstName: 'Sofia', lastName: 'Martinez', grade: 4, avatar: '🐨', password: 'butter23', parentEmails: ['martinez.home@example.com'], ability: 0.52, trend: 0.18, perWeek: 2.5, lastActive: 0, tools: ['readAloud', 'visuals', 'type'], tricky: ['sequence', 'strange'] }),
+    seedStudent({ classId: 'room-14', firstName: 'Leo', lastName: 'Kim', grade: 5, avatar: '🐼', password: 'pop77', parentEmails: ['jkim@example.com'], ability: 0.76, trend: 0.08, perWeek: 2.5, lastActive: 0, tools: ['read', 'type', 'visuals'] }),
+    seedStudent({ classId: 'room-14', firstName: 'Ava', lastName: 'Thomas', grade: 5, avatar: '🦄', password: 'kernel9', parentEmails: ['thomas.home@example.com'], ability: 0.9, trend: 0.04, perWeek: 3, lastActive: 2, tools: ['read', 'type'] }),
+    seedStudent({ classId: 'room-14', firstName: 'Jamal', lastName: 'Brooks', grade: 4, avatar: '🦉', password: 'crunch64', parentEmails: ['brooks.family@example.com'], ability: 0.82, trend: 0.1, perWeek: 2, lastActive: 1, tools: ['readAloud', 'listen', 'speak'] }),
   ],
 }
+
+// Fills in any fields a saved student is missing (from an older version).
+const withDefaults = (s) => ({
+  parentEmails: [],
+  lastReport: null,
+  poppyItem: null,
+  history: [],
+  responses: [],
+  badges: [],
+  writings: [],
+  ...s,
+  reading: { ...emptyReading(), ...s.reading },
+  counters: { ...emptyCounters(), ...s.counters, modes: { ...emptyCounters().modes, ...s.counters?.modes } },
+  skills: { ...Object.fromEntries(SKILLS.map((k) => [k.id, null])), ...s.skills },
+})
 
 export function loadData() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
-    if (saved?.classes && saved?.students) {
-      return {
-        ...saved,
-        students: saved.students.map((s) => ({
-          parentEmails: [],
-          lastReport: null,
-          reading: emptyReading(),
-          poppyItem: null,
-          ...s,
-        })),
-      }
-    }
+    if (saved?.classes && saved?.students) return { ...saved, students: saved.students.map(withDefaults) }
   } catch {
     // Fall through to the sample classes if storage is unavailable or corrupt.
   }
@@ -215,6 +371,11 @@ export function createStudent({ firstName, lastName, grade, classId, parentEmail
     parentEmails,
     lastReport: null,
     reading: emptyReading(),
+    history: [],
+    responses: [],
+    counters: emptyCounters(),
+    badges: [],
+    writings: [],
     poppyItem: null,
   }
 }
@@ -257,8 +418,15 @@ export function averageSkill(student) {
   return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
 }
 
+// Overall picture for the teacher: comprehension and (when the student has
+// read aloud) reading accuracy, weighted equally.
+export function overallScore(student) {
+  const parts = [averageSkill(student), student.reading?.accuracy ?? null].filter((v) => v !== null)
+  return parts.length ? Math.round(parts.reduce((a, b) => a + b, 0) / parts.length) : null
+}
+
 export function categorize(student) {
-  const avg = averageSkill(student)
+  const avg = overallScore(student)
   if (avg === null || student.sessions < 2) return 'new'
   if (avg < 50) return 'support'
   if (avg < 80) return 'progressing'
@@ -297,7 +465,19 @@ export function suggestions(student) {
 
   const tips = []
   if (away !== null && away >= 5) {
-    tips.push(`${name} hasn't played in ${away} days — a quick check-in could help.`)
+    tips.push(`${name} hasn't read in ${away} days — a quick check-in could help.`)
+  }
+  const accuracy = student.reading?.accuracy
+  if (accuracy !== null && accuracy !== undefined && accuracy < 75) {
+    tips.push(`Reading accuracy is ${accuracy}%. Try having ${name} listen to a chapter first, then read it aloud — or partner read.`)
+  }
+  const tricky = (student.reading?.trickyWords ?? []).filter((w) => !w.rescuedOn).map((w) => w.display)
+  if (tricky.length >= 2) {
+    tips.push(`Practice these words together: ${tricky.slice(0, 4).join(', ')}.`)
+  }
+  const evidenceScore = student.skills?.evidence
+  if (evidenceScore !== null && evidenceScore !== undefined && evidenceScore < 60) {
+    tips.push(`Model "I know because the story says…" — ${name} is still learning to back up answers with evidence.`)
   }
   if (category === 'support') {
     tips.push(`Sit with ${name} for a short 1-on-1 on "${growth}".`)
@@ -312,7 +492,7 @@ export function suggestions(student) {
     tips.push(`Offer a challenge chapter to stretch their "${growth}" skills.`)
     tips.push(`${name} could be a buddy helper for classmates on "${strength}".`)
   }
-  return tips
+  return tips.slice(0, 5)
 }
 
 // ---------- Uploading a class list ----------

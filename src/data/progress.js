@@ -1,6 +1,24 @@
-import { dayKey } from './roster.js'
-import { STORIES } from './stories.js'
-import { POINTS } from '../game/readAloud.js'
+import { SKILLS, blend, dayKey } from './roster.js'
+import { WORLDS } from './stories/worlds.js'
+import { emptyCounters, newBadges } from './badges.js'
+
+// Pop Points for each kind of effort. Most points come from trying —
+// reading, answering, trying again, explaining — not from being perfect.
+export const POINTS = {
+  readChapter: 10,
+  readAloud: 10, // bonus for being brave and reading out loud
+  almostEveryWord: 10, // read 90%+ of the words aloud
+  answer: 5, // every question answered
+  tryAgain: 5, // got it after trying again — persistence counts
+  evidence: 10, // explained an answer using evidence from the story
+  followUp: 5, // answered a "tell me more" question
+  rescue: 5, // per tricky word rescued (once per word per day)
+  newStar: 10,
+  tenMinutes: 20,
+  storyComplete: 50,
+  drawing: 10,
+  writing: 15,
+}
 
 // ---------- Poppy's growth ----------
 // Pop Points are Poppy's energy. Every story, answer, and new word warms
@@ -20,15 +38,17 @@ export const POPPY_STAGES = [
 export const POPPY_ITEMS = POPPY_STAGES.filter((s) => s.item).map((s) => ({ ...s.item, min: s.min }))
 
 export const POINT_RULES = [
-  { icon: '📚', label: 'Finish a whole story', points: POINTS.storyComplete },
-  { icon: '🎤', label: 'Read a chapter aloud', points: POINTS.finishReading },
-  { icon: '⭐', label: 'Each new star on a chapter', points: POINTS.perStar },
-  { icon: '⏱️', label: 'Read for 10 minutes in a day', points: POINTS.tenMinutes },
+  { icon: '📖', label: 'Read a chapter (any way you like)', points: POINTS.readChapter },
+  { icon: '🎤', label: 'Read it out loud', points: POINTS.readAloud },
+  { icon: '💬', label: 'Answer a question', points: POINTS.answer },
+  { icon: '💪', label: 'Try again after a tricky question', points: POINTS.tryAgain },
+  { icon: '🔍', label: 'Explain your answer with evidence', points: POINTS.evidence },
   { icon: '🛟', label: 'Rescue a tricky word', points: POINTS.rescue },
+  { icon: '⭐', label: 'Each new star on a chapter', points: POINTS.newStar },
+  { icon: '⏱️', label: 'Read for 10 minutes in a day', points: POINTS.tenMinutes },
+  { icon: '📚', label: 'Finish a whole story', points: POINTS.storyComplete },
+  { icon: '✍️', label: 'Finish a writing activity', points: POINTS.writing },
   { icon: '🎨', label: 'Draw your favorite scene', points: POINTS.drawing },
-  { icon: '🔍', label: 'Use evidence in an answer', points: 15 },
-  { icon: '💬', label: 'Answer a question', points: 10 },
-  { icon: '🔤', label: 'Practice a new word', points: 5 },
 ]
 
 export function poppyGrowth(points) {
@@ -50,7 +70,7 @@ export function readingTime(reading) {
   let minutesToday = 0
   let minutesWeek = 0
   let minutesTotal = 0
-  for (const { date, minutes } of reading.log) {
+  for (const { date, minutes } of reading.log ?? []) {
     minutesTotal += minutes
     if (date === today) minutesToday += minutes
     if (date >= weekAgo) minutesWeek += minutes
@@ -75,6 +95,9 @@ const WIN_MESSAGES = {
   words: 'You learned some brand-new words!',
   streak: 'You read 3 days in a row! Keep it going!',
   rescue: 'You rescued tricky words by saying them out loud!',
+  tryAgain: "You didn't give up — you tried again and figured it out!",
+  thinker: 'You told me more about your thinking. That’s what great readers do!',
+  writing: 'You wrote your own story ideas!',
 }
 
 export function encouragements(student) {
@@ -88,7 +111,7 @@ export function encouragements(student) {
   }
 
   const weekAgo = dayKey(new Date(Date.now() - 6 * 86400000))
-  const recent = student.reading.wins
+  const recent = (student.reading.wins ?? [])
     .filter((w) => w.date >= weekAgo)
     .sort((a, b) => b.date.localeCompare(a.date))
   for (const win of recent) {
@@ -108,119 +131,272 @@ export function encouragements(student) {
 
 // ---------- Applying game results ----------
 
-const addPoints = (earned, label, points) => points > 0 && earned.push({ label, points })
+const today = () => dayKey()
+const add = (earned, label, points) => points > 0 && earned.push({ label, points })
 
-// Records a read-aloud attempt. Stars only add points when they beat the
-// chapter's best, so re-reading is always worth it but can't be farmed.
-// Returns the updated student, the points earned (with reasons), and the
-// new Poppy stage if Poppy grew.
-export function applyReadAloud(student, { chapter, score, matchedWords, tricky = [] }) {
+// Chapter stars are earned by effort: ★ read it (any way), ★ answered the
+// questions, ★ explained your thinking with evidence.
+export function chapterStars(session) {
+  const answered = session.answers.length > 0 && session.answers.length >= (session.questionCount ?? 0)
+  const explained = session.answers.some((a) => a.open && (a.quality === 'strong' || a.followUpAnswer))
+  return 1 + (answered ? 1 : 0) + (explained ? 1 : 0)
+}
+
+// Preview of points for Word Rescue (once per word per day).
+export function rescuePoints(student, rescued) {
+  const list = student.reading.trickyWords ?? []
+  return rescued.filter((word) => list.find((w) => w.word === word)?.rescuedOn !== today()).length * POINTS.rescue
+}
+
+// Saves one whole chapter session: reading (in any mode), Word Rescue, and
+// the comprehension questions. Returns the updated student and everything
+// to celebrate: points with reasons, stars, badges, Poppy's growth, and any
+// story world that just unlocked.
+export function applyChapterSession(student, session) {
+  const { story, chapter, mode, seconds, aloud, tricky = [], rescued = [], answers } = session
+  const now = new Date().toISOString()
+  const day = today()
+  const earned = []
   const reading = {
     ...student.reading,
-    trickyWords: recordTricky(student.reading.trickyWords ?? [], tricky),
-    chapterStars: { ...(student.reading.chapterStars ?? {}) },
-    log: [...student.reading.log],
-    words: [...student.reading.words],
-    wins: [...student.reading.wins],
-    comprehension: { ...student.reading.comprehension },
+    chapterStars: { ...student.reading.chapterStars },
+    log: [...(student.reading.log ?? [])],
+    words: [...(student.reading.words ?? [])],
+    wins: [...(student.reading.wins ?? [])],
+    trickyWords: [...(student.reading.trickyWords ?? [])],
   }
-  const today = dayKey()
-  const earned = []
+  const counters = { ...emptyCounters(), ...student.counters, modes: { ...emptyCounters().modes, ...student.counters?.modes } }
+  const skills = { ...student.skills }
 
-  addPoints(earned, 'Read the chapter aloud', POINTS.finishReading)
-
-  const bestBefore = reading.chapterStars[chapter.id] ?? 0
-  if (score.stars > bestBefore) {
-    reading.chapterStars[chapter.id] = score.stars
-    addPoints(earned, `${score.stars - bestBefore} new ${score.stars - bestBefore === 1 ? 'star' : 'stars'}`, (score.stars - bestBefore) * POINTS.perStar)
+  // Reading
+  add(earned, mode === 'listen' ? 'Listened to the chapter' : 'Read the chapter', POINTS.readChapter)
+  counters.modes[mode] = (counters.modes[mode] ?? 0) + 1
+  if (aloud) {
+    counters.readAloud++
+    add(earned, 'Read it out loud', POINTS.readAloud)
+    if (aloud.completion >= 0.9) add(earned, 'Read almost every word', POINTS.almostEveryWord)
+    const before = reading.accuracy
+    reading.accuracy = blend(before, Math.round(aloud.completion * 100))
+    if (before !== null && before !== undefined && reading.accuracy > before) {
+      counters.accuracyUps++
+      reading.wins.push({ type: 'accuracy', date: day })
+    }
   }
 
-  // Reading time
+  // Reading time (reading + questions)
+  const minutes = Math.max(1, Math.round((seconds + (session.questionSeconds ?? 0)) / 60))
   const minutesBefore = readingTime(reading).minutesToday
-  const minutes = Math.max(1, Math.round(score.seconds / 60))
-  const todayEntry = reading.log.find((e) => e.date === today)
-  if (todayEntry) {
-    reading.log = reading.log.map((e) => (e === todayEntry ? { ...e, minutes: e.minutes + minutes } : e))
-  } else {
-    reading.log.push({ date: today, minutes })
-  }
-  if (minutesBefore < 10 && minutesBefore + minutes >= 10) {
-    addPoints(earned, 'Read 10 minutes today', POINTS.tenMinutes)
-  }
+  const entry = reading.log.find((e) => e.date === day)
+  reading.log = entry
+    ? reading.log.map((e) => (e === entry ? { ...e, minutes: e.minutes + minutes } : e))
+    : [...reading.log, { date: day, minutes }]
+  if (minutesBefore < 10 && minutesBefore + minutes >= 10) add(earned, 'Read 10 minutes today', POINTS.tenMinutes)
 
-  // Story finished: every chapter has at least one star
-  const story = STORIES.find((st) => st.chapters.some((c) => c.id === chapter.id))
-  const allStarred = (stars) => story.chapters.every((c) => (stars?.[c.id] ?? 0) > 0)
-  if (allStarred(reading.chapterStars) && !allStarred(student.reading.chapterStars)) {
-    reading.storiesCompleted += 1
-    reading.wins.push({ type: 'story', date: today })
-    addPoints(earned, `Finished "${story.title}"`, POINTS.storyComplete)
-  }
-
-  // Vocabulary words practiced in this chapter
+  // Vocabulary words met in this chapter
   let newWords = 0
-  for (const word of chapter.vocab) {
-    const said = matchedWords.has(word)
+  for (const { word } of chapter.vocab) {
+    const mastered = !aloud || aloud.matchedWords.has(word)
     const existing = reading.words.find((w) => w.word === word)
     if (!existing) {
-      reading.words.push({ word, mastered: said && score.stars >= 2 })
+      reading.words.push({ word, mastered })
       newWords++
-    } else if (said && score.stars >= 2 && !existing.mastered) {
+    } else if (mastered && !existing.mastered) {
       reading.words = reading.words.map((w) => (w === existing ? { ...w, mastered: true } : w))
     }
   }
-  if (newWords) reading.wins.push({ type: 'words', date: today })
+  if (newWords) reading.wins.push({ type: 'words', date: day })
 
-  // Reading accuracy moves gradually so one tough day doesn't erase progress
-  const before = reading.comprehension.accuracy
-  const attempt = Math.round(score.completion * 100)
-  const after = before === null ? attempt : Math.round(before * 0.7 + attempt * 0.3)
-  reading.comprehension.accuracy = after
-  if (before !== null && after > before) reading.wins.push({ type: 'accuracy', date: today })
-
-  return finish(student, { ...student, reading, lastActive: new Date().toISOString() }, earned)
-}
-
-// Tricky words a student is working on: how often they needed help or
-// skipped it, and when they last rescued it.
-function recordTricky(list, tricky) {
-  const today = dayKey()
-  const next = [...list]
+  // Tricky words: record the struggle, then the rescue
   for (const t of tricky) {
-    const i = next.findIndex((w) => w.word === t.word)
-    const entry = i === -1 ? { word: t.word, display: t.display, helps: 0, misses: 0, rescuedOn: null } : { ...next[i] }
-    if (t.reason === 'help') entry.helps += 1
-    else entry.misses += 1
-    entry.lastSeen = today
-    if (i === -1) next.push(entry)
-    else next[i] = entry
+    const i = reading.trickyWords.findIndex((w) => w.word === t.word)
+    const e = i === -1 ? { word: t.word, display: t.display, helps: 0, misses: 0, rescuedOn: null, rescues: 0 } : { ...reading.trickyWords[i] }
+    if (t.reason === 'help') e.helps++
+    else e.misses++
+    e.lastSeen = day
+    e.sentenceText = t.sentenceText ?? e.sentenceText ?? ''
+    if (i === -1) reading.trickyWords.push(e)
+    else reading.trickyWords[i] = e
   }
-  return next
+  const rescueEarned = rescuePoints({ reading }, rescued)
+  reading.trickyWords = reading.trickyWords.map((w) =>
+    rescued.includes(w.word) ? { ...w, rescuedOn: day, rescues: (w.rescues ?? 0) + 1 } : w
+  )
+  if (rescued.length) {
+    counters.rescued += rescued.length
+    reading.wins.push({ type: 'rescue', date: day })
+    add(earned, `Rescued ${rescued.length} tricky ${rescued.length === 1 ? 'word' : 'words'}`, rescueEarned)
+  }
+
+  // Comprehension questions
+  const byType = {}
+  let retries = 0
+  for (const a of answers) {
+    byType[a.type] = byType[a.type] === undefined ? a.score : Math.round((byType[a.type] + a.score) / 2)
+    skills[a.type] = blend(skills[a.type], a.score)
+    if (a.tries > 1 && a.score >= 60) retries++ // tried again and got it
+  }
+  if (answers.length) add(earned, `Answered ${answers.length} ${answers.length === 1 ? 'question' : 'questions'}`, answers.length * POINTS.answer)
+  if (retries) {
+    counters.retries += retries
+    reading.wins.push({ type: 'tryAgain', date: day })
+    add(earned, `Tried again and figured it out ×${retries}`, retries * POINTS.tryAgain)
+  }
+  const open = answers.filter((a) => a.open)
+  const explained = open.filter((a) => a.quality === 'strong').length
+  if (explained) {
+    counters.evidence += explained
+    reading.wins.push({ type: 'evidence', date: day })
+    add(earned, 'Explained with evidence', explained * POINTS.evidence)
+  }
+  const followUps = open.filter((a) => a.followUpAnswer).length
+  if (followUps) {
+    counters.followUps += followUps
+    reading.wins.push({ type: 'thinker', date: day })
+    add(earned, 'Told me more about your thinking', followUps * POINTS.followUp)
+  }
+  const responses = [
+    ...open.map((a) => ({
+      date: now,
+      storyTitle: story.title,
+      chapterTitle: chapter.title,
+      question: a.prompt,
+      answer: a.text,
+      mode: a.mode,
+      evidence: a.evidence ?? null,
+      followUp: a.followUp ?? null,
+      followUpAnswer: a.followUpAnswer ?? null,
+      quality: a.quality,
+    })),
+    ...(student.responses ?? []),
+  ].slice(0, 40)
+
+  // Stars (only new stars add points, so replaying is for learning, not farming)
+  const stars = chapterStars(session)
+  const starsBefore = reading.chapterStars[chapter.id] ?? 0
+  if (stars > starsBefore) {
+    reading.chapterStars[chapter.id] = stars
+    add(earned, `${stars - starsBefore} new ${stars - starsBefore === 1 ? 'star' : 'stars'}`, (stars - starsBefore) * POINTS.newStar)
+  }
+
+  // Story finished: every chapter has at least one star
+  const allDone = (st) => story.chapters.every((c) => (st?.[c.id] ?? 0) > 0)
+  const storyJustFinished = allDone(reading.chapterStars) && !allDone(student.reading.chapterStars)
+  if (storyJustFinished) {
+    reading.storiesCompleted += 1
+    reading.wins.push({ type: 'story', date: day })
+    add(earned, `Finished "${story.title}"`, POINTS.storyComplete)
+  }
+
+  const quizScore = answers.length ? Math.round(answers.reduce((s, a) => s + a.score, 0) / answers.length) : null
+  const history = [
+    ...(student.history ?? []),
+    {
+      date: now,
+      storyId: story.id,
+      storyTitle: story.title,
+      chapterId: chapter.id,
+      chapterTitle: chapter.title,
+      mode,
+      seconds,
+      ...(aloud && { accuracy: Math.round(aloud.completion * 100), wcpm: aloud.wcpm }),
+      quiz: quizScore === null ? null : { score: quizScore, byType },
+    },
+  ]
+
+  const updated = {
+    ...student,
+    skills,
+    reading,
+    counters,
+    responses,
+    history,
+    sessions: (student.sessions ?? 0) + 1,
+    lastActive: now,
+  }
+  return {
+    ...finish(student, updated, earned),
+    stars,
+    starsBefore,
+    storyJustFinished,
+  }
 }
 
-// Points for each tricky word rescued — once per word per day, so the same
-// word can't be farmed, but practicing it again tomorrow still counts.
-export function applyWordRescue(student, { rescued }) {
-  const today = dayKey()
-  const list = student.reading.trickyWords ?? []
-  const fresh = rescued.filter((word) => list.find((w) => w.word === word)?.rescuedOn !== today)
-  const trickyWords = list.map((w) => (rescued.includes(w.word) ? { ...w, rescuedOn: today, rescues: (w.rescues ?? 0) + 1 } : w))
-  const wins = fresh.length ? [...student.reading.wins, { type: 'rescue', date: today }] : student.reading.wins
-  const earned = fresh.length
-    ? [{ label: `Rescued ${fresh.length} tricky ${fresh.length === 1 ? 'word' : 'words'}`, points: fresh.length * POINTS.rescue }]
-    : []
-  return finish(student, { ...student, reading: { ...student.reading, trickyWords, wins } }, earned)
+// Practicing saved tricky words outside of a chapter.
+export function applyWordPractice(student, { rescued }) {
+  const day = today()
+  const points = rescuePoints(student, rescued)
+  const counters = { ...emptyCounters(), ...student.counters }
+  counters.rescued += rescued.length
+  const reading = {
+    ...student.reading,
+    trickyWords: student.reading.trickyWords.map((w) =>
+      rescued.includes(w.word) ? { ...w, rescuedOn: day, rescues: (w.rescues ?? 0) + 1 } : w
+    ),
+    wins: rescued.length ? [...(student.reading.wins ?? []), { type: 'rescue', date: day }] : student.reading.wins,
+  }
+  return finish(student, { ...student, counters, reading }, [
+    { label: `Rescued ${rescued.length} tricky ${rescued.length === 1 ? 'word' : 'words'}`, points },
+  ])
+}
+
+// Arcade games: points for playing and for each answer found (first try or not).
+export function applyGame(student, { game, correct, total }) {
+  const counters = { ...emptyCounters(), ...student.counters, games: (student.counters?.games ?? 0) + 1 }
+  const minutes = 2
+  const day = today()
+  const log = [...(student.reading.log ?? [])]
+  const entry = log.find((e) => e.date === day)
+  const reading = {
+    ...student.reading,
+    log: entry ? log.map((e) => (e === entry ? { ...e, minutes: e.minutes + minutes } : e)) : [...log, { date: day, minutes }],
+  }
+  return finish(student, { ...student, counters, reading }, [
+    { label: `Played ${game}`, points: 10 },
+    { label: `${correct} of ${total} answers`, points: correct * 5 },
+  ])
 }
 
 export function applyDrawing(student) {
-  const earned = [{ label: 'Drew a favorite scene', points: POINTS.drawing }]
-  return finish(student, student, earned)
+  const counters = { ...emptyCounters(), ...student.counters }
+  counters.drawings++
+  return finish(student, { ...student, counters }, [{ label: 'Drew a favorite scene', points: POINTS.drawing }])
 }
 
+export function applyWriting(student, { story, prompt, text, mode }) {
+  const counters = { ...emptyCounters(), ...student.counters }
+  counters.writings++
+  const writings = [{ id: `${Date.now()}`, date: new Date().toISOString(), storyTitle: story.title, prompt, text, mode }, ...(student.writings ?? [])].slice(0, 20)
+  const reading = { ...student.reading, wins: [...(student.reading.wins ?? []), { type: 'writing', date: today() }] }
+  return finish(student, { ...student, counters, writings, reading }, [{ label: 'Wrote your own story ideas', points: POINTS.writing }])
+}
+
+// Adds points, then works out what to celebrate: Poppy growing, new badges,
+// and newly unlocked story worlds.
 function finish(before, updated, earned) {
-  const total = earned.reduce((sum, e) => sum + e.points, 0)
+  const list = earned.filter((e) => e.points > 0)
+  const total = list.reduce((sum, e) => sum + e.points, 0)
   const after = { ...updated, points: before.points + total }
+  const badges = newBadges(after)
+  after.badges = [...(after.badges ?? []), ...badges.map((b) => ({ id: b.id, date: new Date().toISOString() }))]
   const grewFrom = poppyGrowth(before.points).index
   const grown = poppyGrowth(after.points)
-  return { student: after, earned, total, grewTo: grown.index > grewFrom ? grown.stage : null }
+  const unlockedWorlds = WORLDS.filter((w) => w.unlockAt && before.points < w.unlockAt && after.points >= w.unlockAt)
+  return {
+    student: after,
+    earned: list,
+    total,
+    grewTo: grown.index > grewFrom ? grown.stage : null,
+    badges,
+    unlockedWorlds,
+  }
 }
+
+// Kid-friendly reading pace feedback (never a number for the student).
+export function paceMessage(wcpm, grade) {
+  const target = { 3: 90, 4: 110, 5: 125 }[grade] ?? 100
+  if (wcpm < target * 0.6) return { icon: '🐢', text: 'Nice and careful!' }
+  if (wcpm > target * 1.5) return { icon: '🐇', text: 'Speedy! Try slowing down a little.' }
+  return { icon: '🎵', text: 'Smooth and steady!' }
+}
+
+export const skillLabel = (id) => SKILLS.find((s) => s.id === id)

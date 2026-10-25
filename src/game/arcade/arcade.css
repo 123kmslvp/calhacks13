@@ -1,0 +1,66 @@
+.story-pick { display: flex; align-items: center; gap: 10px; margin: 6px 0 14px; font-weight: 700; }
+.story-pick select { flex: 1; padding: 10px 12px; font-family: inherit; font-size: 1rem; border: 3px solid #e3d4fb; border-radius: 14px; background: #fff; }
+
+.game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.game-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  padding: 16px; font-family: inherit; font-size: 0.95rem; color: inherit; text-align: left;
+  background: #fff; border: 3px solid #e3d4fb; border-radius: 22px; cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+.game-card:hover { transform: translateY(-3px) rotate(-0.5deg); border-color: #c4a8f3; }
+.game-card strong { font-size: 1.25rem; }
+.game-icon { font-size: 2.6rem; animation: float 3s ease-in-out infinite; }
+.game-sequence { background: #fff6e0; }
+.game-vocab { background: #fff0f6; }
+.game-evidence { background: #e5f6ff; }
+.game-cloze { background: #e2f8ee; }
+.skill-chip { margin-top: 6px; padding: 2px 10px; font-size: 0.8rem; font-weight: 700; background: rgba(255, 255, 255, 0.8); border-radius: 999px; }
+
+.game-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.game { margin-top: 8px; }
+.game-instructions { font-size: 1.15rem; }
+
+/* Sequencer */
+.sequence-slots { display: grid; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+.slot { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; font-size: 1.05rem; color: #9a83b5; border: 3px dashed #e3d4fb; border-radius: 16px; }
+.slot.next { border-color: #ffb3cf; background: #fff6fa; }
+.slot.filled { color: inherit; background: #e2f8ee; border: 3px solid #8de0c4; animation: pop 0.3s ease-out; }
+.slot-num { flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center; font-weight: 700; color: #fff; background: #a685e0; border-radius: 50%; }
+.sequence-cards { display: grid; gap: 8px; }
+.event-card { padding: 12px 14px; font-family: inherit; font-size: 1.05rem; color: inherit; text-align: left; background: #fff; border: 3px solid #e3d4fb; border-radius: 16px; cursor: pointer; }
+.event-card:hover { border-color: #c4a8f3; transform: translateY(-2px); }
+.shake { animation: shake 0.4s; border-color: #ffb3cf !important; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* Vocab Pop */
+.kernels { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.kernel-word { padding: 10px 18px; font-family: inherit; font-size: 1.2rem; font-weight: 700; color: #4a2c6b; background: #fff3b8; border: 3px solid #ffd35c; border-radius: 999px; cursor: pointer; }
+.kernel-word.picked { background: #ffd35c; transform: scale(1.1); box-shadow: 0 0 0 4px #fff1b8; }
+.kernel-word.popped { background: #fff; border-color: #8de0c4; color: #1f6b4b; animation: pop 0.4s ease-out; cursor: default; }
+.meanings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.meaning { padding: 12px; font-family: inherit; font-size: 1rem; color: inherit; text-align: left; background: #fff; border: 3px solid #e3d4fb; border-radius: 16px; cursor: pointer; }
+.meaning:hover:not(:disabled) { border-color: #c4a8f3; }
+.meaning.matched { background: #e2f8ee; border-color: #8de0c4; opacity: 0.7; }
+
+/* Evidence Detective */
+.case-file { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 16px; background: #fff6e0; border: 3px solid #ffe7a8; border-radius: 20px; }
+.case-label { font-weight: 700; color: #7a5c9a; }
+.claim { flex: 1 1 100%; margin: 0; font-size: 1.2rem; font-weight: 600; }
+.sentence-list.tall { max-height: none; }
+.sentence-btn.proof { background: #e2f8ee; border-color: #3fbf86; font-weight: 700; }
+.sentence-btn.nope { opacity: 0.45; text-decoration: line-through; }
+
+/* Missing Word */
+.cloze { padding: 18px 20px; font-size: 1.5rem; line-height: 1.6; background: #fff; border: 3px solid #f1e8ff; border-radius: 20px; }
+.blank { padding: 0 8px; font-weight: 700; color: #7a4cbe; border-bottom: 3px solid #7a4cbe; }
+.blank.filled { color: #1f6b4b; border-color: #3fbf86; background: #e2f8ee; border-radius: 6px; }
+.cloze-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cloze-choices .choice-btn { justify-content: center; }
+
+.game-end { margin-top: 16px; text-align: center; }
+
+@media (max-width: 640px) {
+  .game-grid, .meanings, .cloze-choices { grid-template-columns: 1fr; }
+}
+.game-rescue { grid-column: 1 / -1; background: #fff1dc; border-color: #ffd9a8; }
