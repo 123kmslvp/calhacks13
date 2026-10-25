@@ -1,10 +1,11 @@
 // Reads text aloud so students who aren't reading yet can still set up.
-export function speak(text) {
+export function speak(text, { rate = 0.95, onEnd } = {}) {
   if (!('speechSynthesis' in window)) return
   window.speechSynthesis.cancel()
   const utterance = new SpeechSynthesisUtterance(text)
-  utterance.rate = 0.95
+  utterance.rate = rate
   utterance.pitch = 1.2
+  if (onEnd) utterance.onend = onEnd
   window.speechSynthesis.speak(utterance)
 }
 

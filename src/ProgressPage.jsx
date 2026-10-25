@@ -1,6 +1,7 @@
 import Poppy from './components/Poppy.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
 import { COMPREHENSION } from './data/roster.js'
+import { loadDrawings } from './data/drawings.js'
 import {
   POINT_RULES,
   POPPY_ITEMS,
@@ -20,6 +21,7 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
   const messages = encouragements(student)
   const item = POPPY_ITEMS.find((i) => i.id === student.poppyItem && isItemUnlocked(i.id, points))
   const mastered = reading.words.filter((w) => w.mastered).length
+  const drawings = loadDrawings(student.id)
 
   const growthText = next
     ? `${toNext} more Pop Points until Poppy becomes a ${next.name}!`
@@ -189,7 +191,37 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
               ))}
             </ul>
           )}
+
+          {(reading.trickyWords ?? []).length > 0 && (
+            <>
+              <h3 className="heading small tricky-heading">🛟 Tricky words I'm rescuing</h3>
+              <ul className="word-chips" aria-label="Tricky words">
+                {reading.trickyWords.map((w) => (
+                  <li key={w.word} className={w.rescuedOn ? 'word mastered' : 'word'}>
+                    {w.rescuedOn && <span aria-label="rescued">🛟 </span>}
+                    {w.display}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
+
+        {drawings.length > 0 && (
+          <section aria-labelledby="gallery-heading">
+            <h2 className="heading" id="gallery-heading">My drawings 🎨</h2>
+            <ul className="gallery">
+              {drawings.map((d) => (
+                <li key={d.id}>
+                  <figure>
+                    <img src={d.dataUrl} alt={`My drawing of ${d.chapterTitle}`} />
+                    <figcaption>{d.chapterTitle}</figcaption>
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section aria-labelledby="comp-heading">
           <h2 className="heading" id="comp-heading">Understanding stories</h2>

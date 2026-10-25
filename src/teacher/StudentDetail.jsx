@@ -160,6 +160,42 @@ export default function StudentDetail({ student, classes, onBack, onUpdate, onRe
         </section>
 
         <section className="panel full">
+          <h3 className="panel-title">Tricky words</h3>
+          <p className="panel-sub">
+            Words {student.firstName} asked for help with or skipped while reading aloud, and whether they
+            rescued them afterward by saying the word and reading it again.
+          </p>
+          {(student.reading?.trickyWords ?? []).length === 0 ? (
+            <p className="empty">No tricky words yet.</p>
+          ) : (
+            <div className="table-wrap">
+              <table className="roster">
+                <thead>
+                  <tr>
+                    <th>Word</th>
+                    <th>Asked for help</th>
+                    <th>Skipped</th>
+                    <th>Rescued</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...student.reading.trickyWords]
+                    .sort((a, b) => b.helps + b.misses - (a.helps + a.misses))
+                    .map((w) => (
+                      <tr key={w.word}>
+                        <td><strong>{w.display}</strong></td>
+                        <td>{w.helps}×</td>
+                        <td>{w.misses}×</td>
+                        <td>{w.rescuedOn ? `✅ ${lastActiveText(`${w.rescuedOn}T00:00:00`)}` : 'Not yet'}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        <section className="panel full">
           <h3 className="panel-title">My notes</h3>
           <textarea
             className="notes"
