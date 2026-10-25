@@ -64,3 +64,5 @@
   .game-grid, .meanings, .cloze-choices { grid-template-columns: 1fr; }
 }
 .game-rescue { grid-column: 1 / -1; background: #fff1dc; border-color: #ffd9a8; }
+.game-card.locked { position: relative; cursor: default; opacity: 0.55; filter: grayscale(0.6); border-style: dashed; }
+.game-lock { position: absolute; top: 12px; right: 14px; font-size: 1.6rem; }

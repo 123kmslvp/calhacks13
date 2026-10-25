@@ -4,6 +4,7 @@ import SpeakButton from './components/SpeakButton.jsx'
 import { AVATARS, TEACHER } from './data/roster.js'
 import { POPPY_ITEMS, isItemUnlocked, poppyGrowth } from './data/progress.js'
 import { recommendStory } from './game/AdventureMap.jsx'
+import { readStories } from './game/arcade/Arcade.jsx'
 
 const ordinal = (n) => ({ 1: '1st', 2: '2nd', 3: '3rd' })[n] ?? `${n}th`
 
@@ -14,6 +15,7 @@ export default function StudentPage({ student, className, onLogout, onStart, onP
   const growth = poppyGrowth(student.points)
   const poppyItem = POPPY_ITEMS.find((i) => i.id === student.poppyItem && isItemUnlocked(i.id, student.points))
   const next = recommendStory(student)
+  const gamesLocked = readStories(student).length === 0
   const greeting = `Hi ${student.firstName}! What do you want to do today? Read a story, or play games?`
 
   return (
@@ -79,9 +81,10 @@ export default function StudentPage({ student, className, onLogout, onStart, onP
             <span className="home-icon" aria-hidden="true">📚</span>
             <strong>Read a story</strong>
                       </button>
-          <button type="button" className="home-card home-play" onClick={onArcade}>
-            <span className="home-icon" aria-hidden="true">🎮</span>
+          <button type="button" className={gamesLocked ? 'home-card home-play locked' : 'home-card home-play'} onClick={onArcade}>
+            <span className="home-icon" aria-hidden="true">{gamesLocked ? '🔒' : '🎮'}</span>
             <strong>Play games</strong>
+            {gamesLocked && <span>Read a story first</span>}
           </button>
         </div>
 

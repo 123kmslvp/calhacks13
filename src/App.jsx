@@ -124,6 +124,7 @@ export default function App() {
         student={student}
         initialStoryId={arcadeStory}
         exitLabel={progressFrom === 'game' ? 'Back to story' : 'Home'}
+        onRead={() => setPage('game')}
         onSaveStudent={saveStudent}
         onExit={() => setPage(progressFrom)}
       />
