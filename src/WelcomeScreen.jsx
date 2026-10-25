@@ -1,10 +1,6 @@
-import { useState } from 'react'
-
 const TOTAL_STEPS = 7
 
-export default function WelcomeScreen() {
-  const [started, setStarted] = useState(false)
-
+export default function WelcomeScreen({ onStart }) {
   return (
     <main className="welcome">
       <span className="blob blob-1" />
@@ -38,15 +34,9 @@ export default function WelcomeScreen() {
           super fun adventure to learn how computers think!
         </p>
 
-        {started ? (
-          <p className="placeholder" role="status">
-            Profile setup coming next!
-          </p>
-        ) : (
-          <button className="start" onClick={() => setStarted(true)}>
-            Start Adventure ✨
-          </button>
-        )}
+        <button className="start" onClick={onStart}>
+          Start Adventure ✨
+        </button>
       </section>
     </main>
   )
