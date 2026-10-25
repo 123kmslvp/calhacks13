@@ -2,11 +2,11 @@ import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
 import Progress from './components/Progress.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
-import { findStudent } from './data/students.js'
+import { findStudent } from './data/roster.js'
 
 const TOTAL_STEPS = 7
 
-export default function LoginPage({ onBack, onLogin }) {
+export default function LoginPage({ students, onBack, onLogin, onTeacher }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -14,7 +14,7 @@ export default function LoginPage({ onBack, onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const student = findStudent(username, password)
+    const student = findStudent(students, username, password)
     if (student) {
       onLogin(student)
     } else {
@@ -99,8 +99,12 @@ export default function LoginPage({ onBack, onLogin }) {
         </form>
 
         <p className="demo-hint">
-          Demo logins: <code>maya.r</code> / <code>corn42</code> · <code>leo.k</code> /{' '}
-          <code>pop77</code> · <code>ava.t</code> / <code>kern9</code>
+          Demo login: <code>maya.r</code> / <code>corn42</code>
+        </p>
+        <p className="demo-hint">
+          <button type="button" className="back" onClick={onTeacher}>
+            I'm a teacher 🍎
+          </button>
         </p>
       </section>
     </main>
