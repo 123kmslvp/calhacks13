@@ -15,11 +15,11 @@ export default {
       title: 'Ready, Set, Paddle',
       scene: '🛶🌅🍿',
       art: ['🛢️🛶🌅', '🗺️🧭😬', '📯🌀😅'],
-      text: `Every summer, the Kernel Kingdom held the Great River Race. Rafts of every shape bobbed along the muddy bank. Poppy's team was Mateo, Amara, and Poppy. Their raft was made of old barrels tied together with strong rope, and they called it the Butter Boat.
+      text: `Every summer, the Kernel Kingdom held the Great River Race. Poppy's team had three kernels: Poppy, Mateo, and Amara. Their raft was made of old barrels tied together with strong rope. They called it the Butter Boat.
 
-"Remember the plan," said Amara, who had studied the river map all week. "I will steer from the back. Mateo and Poppy, you paddle on opposite sides so we go straight." Mateo nodded, but his hands were shaking. He had never been in a race before.
+"Remember the plan," said Amara. She had studied the map all week. "I will steer from the back. That means I will control which way the raft goes. Mateo and Poppy, you paddle on opposite sides, one on the left and one on the right, so we go straight." Mateo nodded, but his hands were shaking. He had never raced before.
 
-The horn blew, and forty rafts splashed forward at once. The Butter Boat spun in a slow circle, because Mateo and Poppy were both paddling on the same side! Other teams zoomed ahead. "We are already losing," Mateo groaned. Poppy laughed kindly. "Every great journey starts with a wobble. Let's try again, together."`,
+The horn blew, and forty rafts splashed forward at once. The Butter Boat spun in a slow circle because Mateo and Poppy were both paddling on the same side! "We are already losing," Mateo groaned. Poppy laughed kindly. "Every great journey, or long trip, starts with a wobble. Let's try again, together."`,
       vocab: [
         { word: 'steer', definition: 'To control which way something moves.', example: 'Dad let me steer the wagon down the sidewalk.' },
         { word: 'opposite', definition: 'On the other side, or as different as can be.', example: 'My house is on the opposite side of the street from the park.' },
@@ -33,13 +33,13 @@ The horn blew, and forty rafts splashed forward at once. The Butter Boat spun in
           prompt: 'What is this chapter mostly about?',
           choices: [
             'A team starts a raft race and gets off to a wobbly start',
-            'Amara draws a new map of the river',
-            'Mateo wins the race easily',
-            'Poppy builds a house out of barrels',
+            'Amara draws a brand new map of the river',
+            'Mateo wins the race by paddling very fast',
+            'Poppy builds a house out of old barrels',
           ],
           answer: 0,
-          evidence: 'The Butter Boat spun in a slow circle',
-          hint: 'Think about what happened right after the horn blew.',
+          evidence: 'The Butter Boat spun in a slow circle because Mateo and Poppy were both paddling on the same side!',
+          hint: 'Think about what happened right after the horn blew, in the last paragraph.',
         },
         {
           id: 'river-race-1-q2',
@@ -47,17 +47,17 @@ The horn blew, and forty rafts splashed forward at once. The Butter Boat spun in
           prompt: 'What was the Butter Boat made of?',
           choices: ['Popcorn and string', 'Old barrels tied with rope', 'Logs and leaves', 'A big wooden box'],
           answer: 1,
-          evidence: 'Their raft was made of old barrels tied together with strong rope',
+          evidence: 'Their raft was made of old barrels tied together with strong rope.',
           hint: 'Look in the first paragraph where the raft is described.',
         },
         {
           id: 'river-race-1-q3',
           type: 'vocabulary',
-          prompt: 'Amara told them to paddle on "opposite" sides. What does opposite mean here?',
-          choices: ['The same side', 'Very fast', 'The other side from each other', 'Under the water'],
+          prompt: 'Amara said, "Mateo and Poppy, you paddle on opposite sides, one on the left and one on the right." What does opposite mean here?',
+          choices: ['On the same side', 'As fast as you can', 'Across from each other', 'Under the water'],
           answer: 2,
-          evidence: 'Mateo and Poppy, you paddle on opposite sides so we go straight.',
-          hint: 'What went wrong when they both paddled on the same side?',
+          evidence: 'Mateo and Poppy, you paddle on opposite sides, one on the left and one on the right, so we go straight.',
+          hint: 'Look at the words right after opposite sides. Where does each paddler sit?',
         },
         {
           id: 'river-race-1-q4',
@@ -69,8 +69,8 @@ The horn blew, and forty rafts splashed forward at once. The Butter Boat spun in
             ['paddle', 'paddled', 'paddling', 'plan', 'opposite', 'straight'],
           ],
           evidence: [
-            'The Butter Boat spun in a slow circle, because Mateo and Poppy were both paddling on the same side!',
-            'Mateo and Poppy, you paddle on opposite sides so we go straight.',
+            'The Butter Boat spun in a slow circle because Mateo and Poppy were both paddling on the same side!',
+            'Mateo and Poppy, you paddle on opposite sides, one on the left and one on the right, so we go straight.',
           ],
           sample: 'They forgot the plan to paddle on opposite sides. The story says they "were both paddling on the same side!"',
         },
@@ -81,11 +81,11 @@ The horn blew, and forty rafts splashed forward at once. The Butter Boat spun in
       title: 'The Rumble Rapids',
       scene: '🌊🪨🤝',
       art: ['🌊🪨😮', '🗺️🎵🛶', '🤝🪢🏁'],
-      text: `Halfway down the river, the water began to roar. White foam crashed over the rocks ahead. These were the Rumble Rapids, the trickiest part of the race.
+      text: `Halfway down the river, the water began to roar. These were the Rumble Rapids, where the water rushes fast over rocks. They were the trickiest part of the race.
 
-"Look at the map," Amara called. "There is a calm channel on the left side of the big rock!" Mateo took a deep breath. This time he counted out loud, "Left, right, left, right," so he and Poppy could paddle in rhythm. The Butter Boat glided past the rock into the calm channel.
+"Look at the map," Amara called. "There is a calm channel, a narrow path of water, on the left side of the big rock!" This time Mateo counted out loud, "Left, right, left, right." He counted so that he and Poppy could paddle in rhythm, with the same steady beat. The Butter Boat glided into the calm channel.
 
-Then they spotted a team stuck on a sandbar. Their raft would not budge. Mateo looked at the finish line, then at the stuck team. "We can help them," he said. Together they tossed a rope and pulled the other raft free. The Butter Boat crossed the finish line in tenth place, but the crowd cheered loudest for them. Mateo grinned. "That was the best race ever!"`,
+Then they spotted a team stuck on a sandbar. "We can help them," Mateo said. Together they tossed a rope and pulled the other raft free. Helping took time, so the Butter Boat crossed the finish line in tenth place. The crowd cheered loudest for them because they had helped another team. Mateo grinned. "That was the best race ever!"`,
       vocab: [
         { word: 'rapids', definition: 'A part of a river where the water moves very fast over rocks.', example: 'The kayak bounced through the rapids.' },
         { word: 'channel', definition: 'A narrow path of water.', example: 'The boat followed the deep channel to stay off the rocks.' },
@@ -99,13 +99,13 @@ Then they spotted a team stuck on a sandbar. Their raft would not budge. Mateo l
           prompt: 'Why did Mateo count "Left, right, left, right" out loud?',
           choices: [
             'He was practicing for a math test',
-            'He wanted to help the team paddle together and not spin again',
-            'He was trying to scare the fish',
-            'He forgot which hand was which',
+            'He wanted to scare the fish away',
+            'He wanted to paddle with Poppy in a steady beat',
+            'He forgot which side was left',
           ],
-          answer: 1,
-          evidence: 'This time he counted out loud, "Left, right, left, right," so he and Poppy could paddle in rhythm.',
-          hint: 'Think back to what went wrong in Chapter One. Why would counting help?',
+          answer: 2,
+          evidence: 'He counted so that he and Poppy could paddle in rhythm, with the same steady beat.',
+          hint: 'Look at the sentence right after Mateo counts. What did he want himself and Poppy to do?',
         },
         {
           id: 'river-race-2-q2',
@@ -119,32 +119,32 @@ Then they spotted a team stuck on a sandbar. Their raft would not budge. Mateo l
         {
           id: 'river-race-2-q3',
           type: 'inference',
-          prompt: 'The Butter Boat came in tenth place. Why do you think the crowd cheered loudest for them?',
+          prompt: 'The Butter Boat came in tenth place. Why did the crowd cheer loudest for them?',
           choices: [
-            'Their raft was the biggest',
-            'They stopped to help another team that was stuck',
-            'They finished first',
+            'They helped a stuck team get free',
+            'Their raft was the biggest one',
+            'They finished the race first',
             'They had the loudest horn',
           ],
-          answer: 1,
-          evidence: 'Together they tossed a rope and pulled the other raft free.',
-          hint: 'What did the team do on the way to the finish line that other teams might not have done?',
+          answer: 0,
+          evidence: 'The crowd cheered loudest for them because they had helped another team.',
+          hint: 'Look at the sentence about the crowd in the last paragraph. It tells you the reason.',
         },
         {
           id: 'river-race-2-q4',
           type: 'evidence',
           open: true,
-          prompt: 'How did Mateo change from the start of the race to the end? Use evidence from both chapters if you can.',
+          prompt: 'What did Mateo do in this chapter to help his own team and another team? Use details from the story.',
           keywords: [
-            ['nervous', 'scared', 'shaking', 'worried', 'losing', 'groaned'],
-            ['brave', 'confident', 'help', 'helped', 'leader', 'grinned', 'counted', 'happy', 'kind'],
+            ['count', 'counted', 'counting', 'left', 'rhythm', 'beat', 'together', 'paddle'],
+            ['help', 'helped', 'rope', 'pulled', 'stuck', 'free', 'sandbar'],
           ],
           evidence: [
-            'Mateo took a deep breath.',
-            '"We can help them," he said.',
-            'Mateo grinned.',
+            'This time Mateo counted out loud, "Left, right, left, right."',
+            '"We can help them," Mateo said.',
+            'Together they tossed a rope and pulled the other raft free.',
           ],
-          sample: 'At first Mateo was nervous and thought they were losing. By the end he led the team and chose to help others. He said, "We can help them."',
+          sample: 'Mateo counted out loud so he and Poppy could paddle in rhythm. Then he said, "We can help them," and they pulled the stuck raft free.',
         },
       ],
     },

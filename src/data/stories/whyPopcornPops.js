@@ -15,7 +15,7 @@ export default {
       title: 'A Secret Inside',
       scene: '🔬🌽🍿',
       art: ['🍿❓🔬', '🌽🔍💧', '🛡️💧😄'],
-      text: `Poppy bounced into the Science Lab with a big question. "Professor Ada, why does popcorn pop?" Professor Ada smiled and set a single kernel under her microscope. "Let's find out the way scientists do," she said. "First, we look closely."
+      text: `Poppy bounced into the Science Lab with a big question. "Professor Ada, why does popcorn pop?" Professor Ada smiled and set a single kernel under her microscope, a tool that makes tiny things look bigger. "Let's find out like a scientist," she said. "First, we look closely."
 
 Through the microscope, Poppy could see the important parts of the kernel. On the outside was a hard, shiny shell called the hull. Inside the hull was soft, white starch, which is food for a new corn plant. And hidden inside the starch was a tiny bit of water.
 
@@ -44,7 +44,7 @@ Through the microscope, Poppy could see the important parts of the kernel. On th
         {
           id: 'why-popcorn-pops-1-q2',
           type: 'details',
-          prompt: 'What is on the outside of a popcorn kernel?',
+          prompt: 'Poppy looked through the microscope. What is on the outside of a popcorn kernel?',
           choices: ['Soft white starch', 'A tiny bit of water', 'A hard, shiny hull', 'A layer of butter'],
           answer: 2,
           evidence: 'On the outside was a hard, shiny shell called the hull.',
@@ -53,7 +53,7 @@ Through the microscope, Poppy could see the important parts of the kernel. On th
         {
           id: 'why-popcorn-pops-1-q3',
           type: 'vocabulary',
-          prompt: 'What is the "hull" of a kernel?',
+          prompt: 'The story says, "a hard, shiny shell called the hull." What is the hull of a kernel?',
           choices: ['The water inside', 'The hard outer shell', 'The white fluffy part', 'The corn plant'],
           answer: 1,
           evidence: 'On the outside was a hard, shiny shell called the hull.',
@@ -82,11 +82,11 @@ Through the microscope, Poppy could see the important parts of the kernel. On th
       title: 'Heat, Steam, Pop!',
       scene: '🔥💨💥',
       art: ['🍳🔥💨', '🌽💪🫧', '💥🍿🎉'],
-      text: `Next, Professor Ada poured some kernels into a pot and turned on the heat. "When the kernels get very hot, the water inside them turns into steam," she said. "Steam takes up much more space than water. But the strong hull keeps it trapped inside."
+      text: `Next, Professor Ada poured some kernels into a pot and turned on the heat. "When the kernels get very hot, the water inside them turns into steam, a hot gas," she said. "Steam takes up much more space than water. But the strong hull keeps it trapped inside."
 
 Poppy watched the kernels wiggle and rattle. The steam pushed harder and harder against the hull. This pushing force is called pressure. Meanwhile, the heat was turning the starch soft and gooey, almost like melted marshmallow.
 
-Suddenly, pop! The pressure grew too strong, and the hull burst open. The hot, gooey starch puffed out into a white foam that cooled and hardened in a flash. That fluffy shape is the popcorn we eat! A few kernels did not pop at all. "Those probably had too little water inside," Professor Ada said. Poppy cheered. "Science is the most delicious subject!"`,
+Suddenly, pop! The pressure grew too strong, and the hull burst, or broke open all at once. The hot, gooey starch puffed out into a white foam that cooled and hardened in a flash. That fluffy shape is the popcorn we eat! A few kernels did not pop at all. "Those probably had too little water inside," Professor Ada said. Poppy cheered. "Science is the most delicious subject!"`,
       vocab: [
         { word: 'steam', definition: 'Water that has been heated so much it turns into a gas.', example: 'Steam rose from the hot soup.' },
         { word: 'pressure', definition: 'A force that pushes on something.', example: 'The pressure of the air inside made the balloon round.' },
@@ -97,30 +97,30 @@ Suddenly, pop! The pressure grew too strong, and the hull burst open. The hot, g
         {
           id: 'why-popcorn-pops-2-q1',
           type: 'inference',
-          prompt: 'Why do you think the kernels started to wiggle and rattle in the pot?',
+          prompt: 'Poppy watched the kernels wiggle and rattle. What was happening inside the kernels?',
           choices: [
-            'They were cold',
-            'Steam inside was pushing on the hull',
+            'Steam was pushing against the hull',
+            'The kernels were getting cold',
             'Professor Ada was shaking the pot',
-            'They were trying to escape the lab',
+            'The kernels were trying to escape the lab',
           ],
-          answer: 1,
+          answer: 0,
           evidence: 'The steam pushed harder and harder against the hull.',
-          hint: 'Read what was happening inside the kernels while they wiggled.',
+          hint: 'Look at the second paragraph, right after Poppy watched the kernels wiggle and rattle.',
         },
         {
           id: 'why-popcorn-pops-2-q2',
           type: 'prediction',
-          prompt: 'Imagine a kernel with a crack in its hull. What would probably happen when it got hot?',
+          prompt: 'The story says the strong hull keeps the steam trapped inside. Imagine a kernel with a crack in its hull. What would probably happen when it got hot?',
           choices: [
             'It would pop extra big',
-            'The steam would leak out, so it would not pop',
             'It would turn into water',
+            'The steam would leak out, so it would not pop',
             'It would grow into a corn plant',
           ],
-          answer: 1,
+          answer: 2,
           evidence: 'But the strong hull keeps it trapped inside.',
-          hint: 'Popping only happens when steam is trapped. What if it had a way out?',
+          hint: 'Popping needs trapped steam. What would a crack let the steam do?',
         },
         {
           id: 'why-popcorn-pops-2-q3',
@@ -141,11 +141,11 @@ Suddenly, pop! The pressure grew too strong, and the hull burst open. The hot, g
             ['pressure', 'burst', 'pushed', 'hull', 'open', 'puffed'],
           ],
           evidence: [
-            '"When the kernels get very hot, the water inside them turns into steam," she said.',
-            'The pressure grew too strong, and the hull burst open.',
+            '"When the kernels get very hot, the water inside them turns into steam, a hot gas," she said.',
+            'The pressure grew too strong, and the hull burst, or broke open all at once.',
             'The steam pushed harder and harder against the hull.',
           ],
-          sample: 'First the heat turns the water into steam. The steam builds pressure until "the hull burst open" and the starch puffs out.',
+          sample: 'First the heat turns the water into steam. The steam builds pressure until "the hull burst" and the starch puffs out.',
         },
       ],
     },

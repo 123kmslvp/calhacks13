@@ -25,11 +25,11 @@ export default {
       title: 'The Missing Pattern',
       scene: '🔔🏰🍿',
       art: ['🌅🔔🎶', '👂❓🔔', '🗼⚙️🔍'],
-      text: `In the Kernel Kingdom, every morning started with a song. The corn bells rang ding, dong, ding, dong, all across the town.
+      text: `In the Kernel Kingdom, every morning started with a song. The corn bells rang ding, dong, ding, dong, all across the town. That was their pattern, the same sounds repeating again and again.
 
-But one morning, Poppy heard something strange. The bells rang ding, dong, dong, ding! Poppy stopped and listened again. The pattern was broken!
+But one morning, Poppy heard something strange, or different from usual. The bells rang ding, dong, dong, ding! Poppy stopped and listened again. The pattern was broken!
 
-Poppy looked up at the tall bell tower. A tiny gear was rolling down the steps. "That is our first clue," Poppy said. "Someone mixed up the bells. I will fix the pattern before the sun goes down."`,
+Poppy looked up at the tall bell tower. A tiny gear was rolling down the steps. "That is our first clue, a hint to help solve this mystery," Poppy said. "Someone mixed up the bells, and this gear fell out. I will fix the pattern before the sun goes down."`,
       vocab: [
         { word: 'pattern', definition: 'Something that repeats the same way again and again.', example: 'Red, blue, red, blue is a color pattern.' },
         { word: 'clue', definition: 'A piece of information that helps you solve a mystery.', example: 'Muddy footprints were a clue that the dog went outside.' },
@@ -49,30 +49,30 @@ Poppy looked up at the tall bell tower. A tiny gear was rolling down the steps. 
           ],
           answer: 1,
           evidence: 'The pattern was broken!',
-          hint: 'Think about what was different about the bells this morning.',
+          hint: 'Look at the second paragraph. What was different about the bells this morning?',
         },
         {
           id: 'lost-loop-1-q2',
           type: 'vocabulary',
-          prompt: 'The bells rang in a "pattern." What does pattern mean?',
-          choices: ['A loud noise', 'Something that repeats the same way', 'A kind of bell', 'A secret note'],
-          answer: 1,
-          evidence: 'The corn bells rang ding, dong, ding, dong, all across the town.',
-          hint: 'Look at how the bells usually ring: ding, dong, ding, dong.',
+          prompt: 'The story says, "That was their pattern, the same sounds repeating again and again." What does pattern mean?',
+          choices: ['A loud noise', 'A kind of bell', 'A secret note', 'Something that repeats the same way'],
+          answer: 3,
+          evidence: 'That was their pattern, the same sounds repeating again and again.',
+          hint: 'Look at the first paragraph. What does the sentence say the bells did again and again?',
         },
         {
           id: 'lost-loop-1-q3',
           type: 'inference',
-          prompt: 'Why do you think a tiny gear was rolling down the tower steps?',
+          prompt: 'A tiny gear was rolling down the tower steps. What does Poppy say about the gear?',
           choices: [
-            'It fell out when someone mixed up the bells',
             'Poppy dropped it',
             'It was a toy for the town',
+            'It fell out when someone mixed up the bells',
             'The sun pushed it',
           ],
-          answer: 0,
-          evidence: 'Someone mixed up the bells.',
-          hint: 'Poppy calls the gear a clue. A clue about what?',
+          answer: 2,
+          evidence: 'Someone mixed up the bells, and this gear fell out.',
+          hint: 'Look at what Poppy says in the last paragraph, right after the words "first clue."',
         },
         {
           id: 'lost-loop-1-q4',
@@ -97,49 +97,49 @@ Poppy looked up at the tall bell tower. A tiny gear was rolling down the steps. 
       title: 'Steps in Order',
       scene: '📜🪜🔔',
       art: ['🧗📜🔔', '✂️📄🤪', '🧩✅🔔'],
-      text: `Poppy climbed the bell tower to look for more clues. At the top, Poppy found a note from the Bell Keeper. It said, "First wind the gear. Next pull the rope. Last ring the bell."
+      text: `Poppy climbed the bell tower to look for more clues. At the top, Poppy found a note from the Bell Keeper. It listed three steps, or small actions to do one at a time. It said, "First wind the gear. Next pull the rope. Last ring the bell."
 
-But the steps on the note were in the wrong sequence! Someone had cut the paper and put the pieces back in a silly order.
+But the steps on the note were in the wrong sequence, or wrong order! Someone had cut the paper and mixed up the pieces.
 
-Poppy laid the pieces on the floor. "First, next, last," Poppy said slowly. Poppy moved each piece until the steps were in order. Then Poppy tried them one by one, and the first bell rang just right.`,
+Poppy laid the pieces on the floor. "First, next, last," Poppy said slowly. Poppy moved each piece until the steps were in order. Then Poppy tried them one by one, and the first bell rang just right. The other bells still needed fixing.`,
       vocab: [
         { word: 'sequence', definition: 'The order that things happen in.', example: 'The sequence of my morning is wake up, brush teeth, eat breakfast.' },
         { word: 'order', definition: 'The way things are arranged, like first, next, and last.', example: 'We lined up in order from shortest to tallest.' },
         { word: 'steps', definition: 'The small actions you do, one at a time, to finish a job.', example: 'Follow the steps to build the model.' },
       ],
-      drawIdeas: 'Poppy at the top of the tower, the cut up note, or the first bell ringing',
+      drawIdeas: 'Poppy at the top of the tower, the cut-up note, or the first bell ringing',
       questions: [
         {
           id: 'lost-loop-2-q1',
           type: 'details',
           prompt: "What did the Bell Keeper's note say to do first?",
-          choices: ['Ring the bell', 'Pull the rope', 'Wind the gear', 'Climb the tower'],
-          answer: 2,
+          choices: ['Ring the bell', 'Pull the rope', 'Climb the tower', 'Wind the gear'],
+          answer: 3,
           evidence: 'First wind the gear.',
           hint: 'Find the word "First" in the note.',
         },
         {
           id: 'lost-loop-2-q2',
           type: 'vocabulary',
-          prompt: 'The steps were in the wrong "sequence." What does sequence mean?',
-          choices: ['The order things happen in', 'A kind of rope', 'A loud sound', 'A paper note'],
-          answer: 0,
-          evidence: 'But the steps on the note were in the wrong sequence!',
-          hint: 'Poppy fixed it by saying "First, next, last."',
+          prompt: 'The story says, "the wrong sequence, or wrong order." What does sequence mean?',
+          choices: ['A kind of rope', 'The order things happen in', 'A loud sound', 'A paper note'],
+          answer: 1,
+          evidence: 'But the steps on the note were in the wrong sequence, or wrong order!',
+          hint: 'Read the words right after "sequence" in the second paragraph.',
         },
         {
           id: 'lost-loop-2-q3',
           type: 'prediction',
-          prompt: 'Only the first bell works so far. What do you predict Poppy will try to fix next?',
+          prompt: 'At the end of the chapter, the first bell rings right and the other bells still need fixing. What will Poppy most likely do next?',
           choices: [
-            'All the bells, so the whole song plays again',
-            "Poppy's bedroom",
-            'The road into town',
-            'Nothing, Poppy will give up',
+            "Fix Poppy's bedroom",
+            'Fix the road into town',
+            'Fix the other bells so the whole song plays again',
+            'Give up and go home',
           ],
-          answer: 0,
-          evidence: 'Then Poppy tried them one by one, and the first bell rang just right.',
-          hint: 'Poppy wants the morning song back. Is one bell enough for a song?',
+          answer: 2,
+          evidence: 'The other bells still needed fixing.',
+          hint: 'Look at the last two sentences of the chapter. What still needs to be done?',
         },
         {
           id: 'lost-loop-2-q4',
@@ -152,7 +152,7 @@ Poppy laid the pieces on the floor. "First, next, last," Poppy said slowly. Popp
           ],
           evidence: [
             'Then Poppy tried them one by one, and the first bell rang just right.',
-            'But the steps on the note were in the wrong sequence!',
+            'But the steps on the note were in the wrong sequence, or wrong order!',
             'Poppy moved each piece until the steps were in order.',
           ],
           sample: 'The bell only works if you do the steps in order. After Poppy fixed the order, "the first bell rang just right."',
@@ -168,7 +168,7 @@ Poppy laid the pieces on the floor. "First, next, last," Poppy said slowly. Popp
 
 Poppy rang ding, dong, and then started over. Ding, dong, ding, dong! But on the third time, a bell went clunk. There was a bug in the loop!
 
-Poppy looked closely and found the tiny gear from the stairs stuck in the bell. Poppy pulled it out and tried again. Ding, dong, ding, dong, all the way through. The whole town cheered. Fixing a bug like that is called debugging!`,
+Poppy looked closely and found the tiny gear from the stairs stuck in the bell. Poppy pulled it out and tried again. Ding, dong, ding, dong, all the way through. The whole town cheered. Finding and fixing a bug like that is called debugging!`,
       vocab: [
         { word: 'loop', definition: 'Steps that repeat again and again.', example: 'Our jump rope song is a loop: we sing it over and over.' },
         { word: 'repeat', definition: 'To do or say something again.', example: 'Please repeat the question so I can hear it.' },
@@ -181,14 +181,14 @@ Poppy looked closely and found the tiny gear from the stairs stuck in the bell. 
           type: 'mainIdea',
           prompt: 'What is the big idea of this chapter?',
           choices: [
-            'Poppy finds and fixes a bug so the bells work again',
             'The town throws a birthday party',
             'Poppy loses the tiny gear',
             'Bells are too loud',
+            'Poppy finds and fixes a bug so the bells work again',
           ],
-          answer: 0,
-          evidence: 'Fixing a bug like that is called debugging!',
-          hint: 'What was wrong, and what did Poppy do about it?',
+          answer: 3,
+          evidence: 'Finding and fixing a bug like that is called debugging!',
+          hint: 'Look at the last paragraph. What was wrong with the bell, and what did Poppy do about it?',
         },
         {
           id: 'lost-loop-3-q2',
@@ -202,11 +202,11 @@ Poppy looked closely and found the tiny gear from the stairs stuck in the bell. 
         {
           id: 'lost-loop-3-q3',
           type: 'inference',
-          prompt: 'How do you think the town felt at the end?',
-          choices: ['Happy and proud', 'Angry', 'Sleepy', 'Scared'],
-          answer: 0,
+          prompt: 'The story says the whole town cheered after the bells rang right. How did the town feel?',
+          choices: ['Angry', 'Happy', 'Sleepy', 'Scared'],
+          answer: 1,
           evidence: 'The whole town cheered.',
-          hint: 'What do people do when they cheer?',
+          hint: 'Think about when people cheer. Do they cheer when they are upset or when they are glad?',
         },
         {
           id: 'lost-loop-3-q4',

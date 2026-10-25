@@ -8,6 +8,9 @@ export const WORLDS = [
   { id: 'animals', name: 'Animal Valley', icon: '🐾', genre: 'Animals', color: '#a0662a', tint: '#fff4e0' },
   { id: 'science', name: 'Science Lab', icon: '🔬', genre: 'Science', color: '#1f7fb8', tint: '#e5f6ff' },
   { id: 'realworld', name: 'Hometown', icon: '🏘️', genre: 'Real-world', color: '#c23f74', tint: '#fff0f6' },
+  { id: 'folktales', name: 'Tales & Legends', icon: '📜', genre: 'Folktale', color: '#a0561f', tint: '#fff1e0' },
+  { id: 'history', name: 'Real Heroes', icon: '🌟', genre: 'Biography', color: '#5a6f1f', tint: '#f1f6e0' },
+  { id: 'funny', name: 'Giggle Gulch', icon: '😂', genre: 'Humor', color: '#b07a00', tint: '#fff8d6' },
   { id: 'space', name: 'Star Station', icon: '🚀', genre: 'Science fiction', color: '#3d3d9e', tint: '#ecebff', unlockAt: 250, bonus: true },
 ]
 

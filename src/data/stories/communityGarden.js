@@ -15,11 +15,11 @@ export default {
       title: 'The Empty Lot',
       scene: '🏚️🚮🌱',
       art: ['🏚️🛒🌾', '📚🧓🌱', '🧤🗑️🌇'],
-      text: `For as long as Jamal could remember, the lot on Maple Street had been empty. Broken bottles glittered in the weeds, and a rusty shopping cart leaned against the fence. Most neighbors walked past without even looking. But one Saturday, Jamal and his friend Priya stopped at the gate. "What if this place could grow something besides weeds?" Priya asked.
+      text: `For as long as Jamal could remember, the lot on Maple Street had been empty. Broken bottles glittered in the weeds, and a rusty shopping cart leaned against the fence. The lot looked messy, so most neighbors walked past without even looking. But one Saturday, Jamal and his friend Priya stopped at the gate. "What if this place could grow something besides weeds?" Priya asked.
 
-They brought their idea to a neighborhood meeting at the library. Grandpa Chen, who had grown vegetables in his village as a boy, offered to teach them. Abuela Rosa promised seeds from her own garden. The city agreed to let them use the lot if they cleaned it up first.
+They brought their idea to a neighborhood meeting at the library. Grandpa Chen had grown vegetables in his village as a boy, and he offered to teach them. Abuela Rosa promised seeds from her own garden. The city agreed to let them use the lot if they cleaned it up first.
 
-The next weekend, more than twenty volunteers arrived with gloves, rakes, and trash bags. They hauled away the shopping cart and filled thirty bags with garbage. By sunset, the lot was bare dirt, but it no longer looked forgotten. Jamal wiped his forehead and grinned. "Now comes the hard part," he said. "Deciding what to plant."`,
+The next weekend, twenty volunteers arrived with gloves, rakes, and trash bags. Volunteers are people who choose to help without being paid. They hauled, or carried off, the shopping cart and filled thirty bags with garbage. By sunset, the lot was bare dirt, but it no longer looked forgotten, as if nobody cared about it. Jamal grinned. "Now comes the hard part," he said. "Deciding what to plant. Everyone has a different idea."`,
       vocab: [
         { word: 'volunteers', definition: 'People who choose to help without being paid.', example: 'Volunteers served lunch at the shelter on Sunday.' },
         { word: 'hauled', definition: 'Pulled or carried something heavy.', example: 'We hauled the heavy cooler down to the beach.' },
@@ -32,58 +32,58 @@ The next weekend, more than twenty volunteers arrived with gloves, rakes, and tr
           type: 'mainIdea',
           prompt: 'What is the main idea of this chapter?',
           choices: [
+            'Jamal and Priya fix up a rusty shopping cart',
             'Neighbors work together to clean up an empty lot for a garden',
-            'Jamal finds a rusty shopping cart',
-            'Grandpa Chen tells stories about his village',
-            'The library holds a book sale',
+            'Grandpa Chen teaches a class about his village',
+            'The library holds a big book sale for the street',
           ],
-          answer: 0,
-          evidence: 'The next weekend, more than twenty volunteers arrived with gloves, rakes, and trash bags.',
+          answer: 1,
+          evidence: 'The next weekend, twenty volunteers arrived with gloves, rakes, and trash bags.',
           hint: 'Think about how the lot changed from the beginning of the chapter to the end, and who helped.',
         },
         {
           id: 'community-garden-1-q2',
           type: 'inference',
-          prompt: 'Why do you think most neighbors walked past the lot "without even looking"?',
+          prompt: 'Why did most neighbors walk past the lot "without even looking"?',
           choices: [
-            'It was messy and seemed like nobody cared about it',
-            'They were not allowed to look at it',
-            'It was too far away to see',
-            'It was full of beautiful flowers already',
+            'The lot looked messy, so they did not want to look at it',
+            'They were not allowed to look at the lot',
+            'The lot was too far away for them to see',
+            'The lot was already full of beautiful flowers',
           ],
           answer: 0,
-          evidence: 'Broken bottles glittered in the weeds, and a rusty shopping cart leaned against the fence.',
-          hint: 'Reread how the lot is described at the very start. Would it be fun to look at?',
+          evidence: 'The lot looked messy, so most neighbors walked past without even looking.',
+          hint: 'Look at the sentence right after the broken bottles and the rusty cart. What does it say about the lot?',
         },
         {
           id: 'community-garden-1-q3',
           type: 'prediction',
-          prompt: 'Jamal says the hard part is "Deciding what to plant." What do you predict will happen next?',
+          prompt: 'Jamal says the hard part is "Deciding what to plant. Everyone has a different idea." What do you predict will happen next?',
           choices: [
-            'The neighbors will have different ideas about what to grow',
             'The volunteers will put the garbage back',
-            'The city will build a parking lot',
-            'Jamal will move away',
+            'The city will build a parking lot there',
+            'The neighbors will disagree about what to grow',
+            'Jamal will move away from Maple Street',
           ],
-          answer: 0,
-          evidence: '"Deciding what to plant."',
-          hint: 'Why would Jamal call deciding the "hard part" if everyone already agreed?',
+          answer: 2,
+          evidence: 'Everyone has a different idea',
+          hint: 'Look at the last two sentences. If everyone has a different idea, what might happen at the next meeting?',
         },
         {
           id: 'community-garden-1-q4',
           type: 'evidence',
           open: true,
-          prompt: 'How did the community work together to make the garden possible? Give at least two examples from the text.',
+          prompt: 'What did Grandpa Chen, Abuela Rosa, and the volunteers each do to help make the garden possible? Use details from the story.',
           keywords: [
             ['grandpa', 'chen', 'teach', 'abuela', 'rosa', 'seeds', 'city', 'agreed'],
             ['volunteers', 'cleaned', 'clean', 'hauled', 'garbage', 'trash', 'bags', 'rakes'],
           ],
           evidence: [
-            'Grandpa Chen, who had grown vegetables in his village as a boy, offered to teach them.',
+            'Grandpa Chen had grown vegetables in his village as a boy, and he offered to teach them.',
             'Abuela Rosa promised seeds from her own garden.',
-            'They hauled away the shopping cart and filled thirty bags with garbage.',
+            'They hauled, or carried off, the shopping cart and filled thirty bags with garbage.',
           ],
-          sample: 'Many people helped in different ways. Grandpa Chen "offered to teach them," Abuela Rosa gave seeds, and volunteers "filled thirty bags with garbage."',
+          sample: 'Many people helped in different ways. Grandpa Chen "offered to teach them," Abuela Rosa promised seeds, and volunteers "filled thirty bags with garbage."',
         },
       ],
     },
@@ -92,11 +92,11 @@ The next weekend, more than twenty volunteers arrived with gloves, rakes, and tr
       title: 'Two Good Ideas',
       scene: '🌻🥕🐝',
       art: ['🌸🗣️🥕', '🧓✋🤝', '🍅🌻🐝'],
-      text: `At the planning meeting, a disagreement sprouted faster than any seed. Priya wanted to fill the garden with flowers. "Flowers attract bees and butterflies, and they make people smile," she argued. Jamal shook his head. "We should grow vegetables. Some families on our street cannot always afford fresh food."
+      text: `At the planning meeting, a disagreement, or clash of ideas, sprouted faster than any seed. Priya wanted to fill the garden with flowers. "Flowers attract bees and butterflies, and they make people smile," she argued. Jamal shook his head. "We should grow vegetables. Some families on our street cannot always afford fresh food. They do not have enough money to buy it."
 
-Their voices grew louder until Grandpa Chen raised his hand. "You both care about this neighborhood," he said calmly. "Before you decide, try to explain the other person's idea." Priya took a breath. "Jamal wants the garden to feed people." Jamal nodded slowly. "And Priya wants it to help pollinators and make our street beautiful."
+Their voices grew louder until Grandpa Chen raised his hand. "You both care about this neighborhood," he said calmly. "Before you decide, try to explain the other person's idea, so you can understand each other." Priya took a breath. "Jamal wants the garden to feed people." Jamal nodded slowly. "And Priya wants it to help pollinators, the bees and butterflies that carry pollen from flower to flower."
 
-Then Jamal had a thought. "Squash and many other vegetables need bees to help them grow food," he said. "Flowers could bring bees to our garden!" They agreed to plant rows of vegetables with flowers along the edges. By August, the garden overflowed with tomatoes, squash, sunflowers, and buzzing bees. Priya smiled. "This is the most beautiful place in the whole city."`,
+Jamal had a thought. "Squash and many other vegetables need bees to help them grow," he said. "Flowers could bring bees to our garden!" They agreed to plant rows of vegetables with flowers along the edges. By August, the garden overflowed with tomatoes, squash, sunflowers, and buzzing bees. Priya smiled. "This is the most beautiful place in the whole city."`,
       vocab: [
         { word: 'disagreement', definition: 'When people have different ideas or do not agree.', example: 'We had a disagreement about which game to play first.' },
         { word: 'afford', definition: 'To have enough money to pay for something.', example: 'We saved our allowance so we could afford a new ball.' },
@@ -107,30 +107,30 @@ Then Jamal had a thought. "Squash and many other vegetables need bees to help th
         {
           id: 'community-garden-2-q1',
           type: 'vocabulary',
-          prompt: 'Jamal says some families "cannot always afford fresh food." What does afford mean?',
+          prompt: 'Jamal says some families "cannot always afford fresh food." What does afford mean here?',
           choices: [
+            'To cook something in a big pot',
+            'To grow something very quickly',
             'To have enough money to pay for something',
-            'To cook something',
-            'To grow something quickly',
             'To share something with a friend',
           ],
-          answer: 0,
-          evidence: 'Some families on our street cannot always afford fresh food.',
-          hint: 'Think about what families need in order to buy fresh food at a store.',
+          answer: 2,
+          evidence: 'They do not have enough money to buy it.',
+          hint: 'Look at the sentence right after Jamal says families cannot afford fresh food.',
         },
         {
           id: 'community-garden-2-q2',
           type: 'inference',
           prompt: 'Why did Grandpa Chen ask Priya and Jamal to explain the other person\'s idea?',
           choices: [
-            'So they would listen and understand each other',
+            'So they could understand each other',
             'So he could pick the winner',
             'So the meeting would end faster',
             'So they would forget about the garden',
           ],
           answer: 0,
-          evidence: '"Before you decide, try to explain the other person\'s idea."',
-          hint: 'Their voices were getting louder. What happens when you have to repeat someone else\'s idea in your own words?',
+          evidence: '"Before you decide, try to explain the other person\'s idea, so you can understand each other."',
+          hint: 'Find what Grandpa Chen says right after "You both care about this neighborhood." The words "so you can" give the reason.',
         },
         {
           id: 'community-garden-2-q3',
@@ -145,13 +145,13 @@ Then Jamal had a thought. "Squash and many other vegetables need bees to help th
           id: 'community-garden-2-q4',
           type: 'evidence',
           open: true,
-          prompt: 'How did Priya and Jamal solve their disagreement respectfully? Use evidence from the text.',
+          prompt: 'How did Priya and Jamal solve their disagreement respectfully? Give two things they did. Use details from the story.',
           keywords: [
             ['explain', 'listen', 'listened', 'understand', 'other', 'calm', 'calmly', 'idea'],
             ['both', 'together', 'flowers', 'vegetables', 'edges', 'agreed', 'bees', 'compromise'],
           ],
           evidence: [
-            '"Before you decide, try to explain the other person\'s idea."',
+            '"Before you decide, try to explain the other person\'s idea, so you can understand each other."',
             'They agreed to plant rows of vegetables with flowers along the edges.',
             '"Jamal wants the garden to feed people."',
           ],
