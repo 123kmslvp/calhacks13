@@ -3,6 +3,7 @@ import WelcomeScreen from './WelcomeScreen.jsx'
 import LoginPage from './LoginPage.jsx'
 import StudentPage from './StudentPage.jsx'
 import ProgressPage from './ProgressPage.jsx'
+import ReadAloudGame from './game/ReadAloudGame.jsx'
 import TeacherLogin from './teacher/TeacherLogin.jsx'
 import TeacherDashboard from './teacher/TeacherDashboard.jsx'
 import { loadData, resetData, saveData } from './data/roster.js'
@@ -11,6 +12,7 @@ export default function App() {
   const [page, setPage] = useState('welcome')
   const [data, setData] = useState(loadData)
   const [studentId, setStudentId] = useState(null)
+  const [preferences, setPreferences] = useState([])
 
   useEffect(() => saveData(data), [data])
 
@@ -63,6 +65,7 @@ export default function App() {
           setPage('login')
         }}
         onStart={({ preferences }) => {
+          setPreferences(preferences)
           // Record the session so the teacher dashboard stays up to date.
           setData((d) => ({
             ...d,
@@ -73,7 +76,7 @@ export default function App() {
               return { ...s, sessions: s.sessions + 1, lastActive: new Date().toISOString(), toolsUsed }
             }),
           }))
-          setPage('story')
+          setPage('game')
         }}
       />
     )
@@ -94,19 +97,19 @@ export default function App() {
     )
   }
 
-  // Placeholder until the storyline page exists.
+  const saveStudent = (updated) =>
+    setData((d) => ({
+      ...d,
+      students: d.students.map((s) => (s.id === updated.id ? updated : s)),
+    }))
+
   return (
-    <main className="welcome">
-      <section className="card">
-        <p className="placeholder" role="status">
-          📖 Storyline coming next!
-        </p>
-        <p>
-          <button className="back" onClick={() => setPage('student')}>
-            ← Back to my page
-          </button>
-        </p>
-      </section>
-    </main>
+    <ReadAloudGame
+      student={student}
+      preferences={preferences}
+      onSaveStudent={saveStudent}
+      onExit={() => setPage('student')}
+      onProgress={() => setPage('progress')}
+    />
   )
 }

@@ -59,6 +59,8 @@ export const emptyReading = () => ({
   words: [],
   comprehension: Object.fromEntries(COMPREHENSION.map((c) => [c.id, null])),
   wins: [],
+  chapterStars: {},
+  trickyWords: [],
 })
 
 // Builds sample reading data: log is [daysAgo, minutes], words are
