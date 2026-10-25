@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import WelcomeScreen from './WelcomeScreen.jsx'
 import LoginPage from './LoginPage.jsx'
 import StudentPage from './StudentPage.jsx'
+import ProgressPage from './ProgressPage.jsx'
 import TeacherLogin from './teacher/TeacherLogin.jsx'
 import TeacherDashboard from './teacher/TeacherDashboard.jsx'
 import { loadData, resetData, saveData } from './data/roster.js'
@@ -56,6 +57,7 @@ export default function App() {
       <StudentPage
         student={student}
         className={studentClass?.name}
+        onProgress={() => setPage('progress')}
         onLogout={() => {
           setStudentId(null)
           setPage('login')
@@ -73,6 +75,21 @@ export default function App() {
           }))
           setPage('story')
         }}
+      />
+    )
+  }
+
+  if (page === 'progress') {
+    return (
+      <ProgressPage
+        student={student}
+        onBack={() => setPage('student')}
+        onSelectItem={(poppyItem) =>
+          setData((d) => ({
+            ...d,
+            students: d.students.map((s) => (s.id === student.id ? { ...s, poppyItem } : s)),
+          }))
+        }
       />
     )
   }

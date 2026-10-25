@@ -41,10 +41,41 @@ const AVATARS = ['🦊', '🐼', '🐸', '🦄', '🐙', '🐯', '🐧', '🦖',
 const PASSWORD_WORDS = ['corn', 'pop', 'kernel', 'snack', 'butter', 'salty', 'crunch', 'fluffy']
 
 const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString()
+// Local calendar day, e.g. "2026-10-24", used for the reading log.
+export const dayKey = (date = new Date()) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+const dayKeyAgo = (n) => dayKey(new Date(Date.now() - n * 86400000))
+
+export const COMPREHENSION = [
+  { id: 'accuracy', label: 'Reading accuracy', hint: 'Reading words correctly' },
+  { id: 'evidence', label: 'Using evidence', hint: 'Showing proof from the story' },
+  { id: 'retelling', label: 'Retelling the story', hint: 'Telling what happened in order' },
+  { id: 'vocabulary', label: 'Word meanings', hint: 'Knowing what new words mean' },
+]
+
+export const emptyReading = () => ({
+  storiesCompleted: 0,
+  log: [],
+  words: [],
+  comprehension: Object.fromEntries(COMPREHENSION.map((c) => [c.id, null])),
+  wins: [],
+})
+
+// Builds sample reading data: log is [daysAgo, minutes], words are
+// [word, mastered], wins are [type, daysAgo].
+function seedReading(storiesCompleted, log, words, comprehension, wins) {
+  return {
+    storiesCompleted,
+    log: log.map(([ago, minutes]) => ({ date: dayKeyAgo(ago), minutes })),
+    words: words.map(([word, mastered]) => ({ word, mastered })),
+    comprehension,
+    wins: wins.map(([type, ago]) => ({ type, date: dayKeyAgo(ago) })),
+  }
+}
 
 // lastWeek is where the student stood when their last parent report went out,
 // so the next report can show what changed.
-function seedStudent(classId, firstName, lastName, grade, avatar, password, parentEmails, points, skills, sessions, lastActiveDaysAgo, toolsUsed, lastWeek) {
+function seedStudent(classId, firstName, lastName, grade, avatar, password, parentEmails, points, skills, sessions, lastActiveDaysAgo, toolsUsed, lastWeek, reading = emptyReading()) {
   return {
     id: `${firstName}-${lastName}`.toLowerCase(),
     classId,
@@ -62,6 +93,8 @@ function seedStudent(classId, firstName, lastName, grade, avatar, password, pare
     notes: '',
     parentEmails,
     lastReport: lastWeek && { sentAt: daysAgo(7), ...lastWeek },
+    reading,
+    poppyItem: null,
   }
 }
 
@@ -72,14 +105,34 @@ const SEED = {
   ],
   students: [
     seedStudent('room-12', 'Maya', 'Rivera', 3, '🦊', 'corn42', ['rivera.family@example.com'], 120, { patterns: 72, sequencing: 58, loops: 41, debugging: 35 }, 6, 1, { listen: 5, visuals: 4, read: 1 },
-      { points: 80, sessions: 4, skills: { patterns: 64, sequencing: 55, loops: 33, debugging: 35 } }),
+      { points: 80, sessions: 4, skills: { patterns: 64, sequencing: 55, loops: 33, debugging: 35 } },
+      seedReading(3, [[0, 12], [1, 15], [3, 10], [5, 8]],
+        [['pattern', true], ['sequence', true], ['repeat', true], ['predict', true], ['clue', true], ['loop', false], ['debug', false], ['evidence', false]],
+        { accuracy: 78, evidence: 64, retelling: 58, vocabulary: 70 },
+        [['evidence', 0], ['accuracy', 1], ['story', 3]])),
     seedStudent('room-12', 'Noah', 'Garcia', 3, '🐸', 'snack31', [], 60, { patterns: 45, sequencing: 38, loops: 30, debugging: 22 }, 4, 6, { listen: 4, speak: 3, visuals: 4 },
-      { points: 50, sessions: 3, skills: { patterns: 40, sequencing: 38, loops: 30, debugging: 22 } }),
+      { points: 50, sessions: 3, skills: { patterns: 40, sequencing: 38, loops: 30, debugging: 22 } },
+      seedReading(1, [[6, 9], [8, 6]],
+        [['pattern', true], ['clue', true], ['repeat', false], ['sequence', false]],
+        { accuracy: 52, evidence: 30, retelling: 41, vocabulary: 45 },
+        [['story', 6], ['words', 8]])),
     seedStudent('room-12', 'Zoe', 'Nguyen', 3, '🐙', 'fluffy58', ['lan.nguyen@example.com', 'minh.nguyen@example.com'], 210, { patterns: 66, sequencing: 74, loops: 55, debugging: 61 }, 9, 3, { readAloud: 5, read: 4, speak: 2 },
-      { points: 170, sessions: 7, skills: { patterns: 60, sequencing: 70, loops: 48, debugging: 61 } }),
+      { points: 170, sessions: 7, skills: { patterns: 60, sequencing: 70, loops: 48, debugging: 61 } },
+      seedReading(4, [[3, 14], [4, 12], [5, 11]],
+        [['pattern', true], ['sequence', true], ['predict', true], ['clue', true], ['loop', true], ['debug', false], ['evidence', false], ['algorithm', false], ['repeat', true]],
+        { accuracy: 81, evidence: 55, retelling: 72, vocabulary: 66 },
+        [['streak', 3], ['words', 4]])),
     seedStudent('room-14', 'Leo', 'Kim', 5, '🐼', 'pop77', ['jkim@example.com'], 340, { patterns: 88, sequencing: 81, loops: 76, debugging: 70 }, 12, 0, { read: 9, type: 10, visuals: 3 },
-      { points: 280, sessions: 9, skills: { patterns: 85, sequencing: 78, loops: 70, debugging: 62 } }),
-    seedStudent('room-14', 'Ava', 'Thomas', 5, '🦄', 'kernel9', ['thomas.home@example.com'], 560, { patterns: 95, sequencing: 90, loops: 87, debugging: 82 }, 18, 2, { read: 15, type: 14 }, null),
+      { points: 280, sessions: 9, skills: { patterns: 85, sequencing: 78, loops: 70, debugging: 62 } },
+      seedReading(6, [[0, 18], [1, 20], [2, 15], [4, 12]],
+        [['algorithm', true], ['sequence', true], ['loop', true], ['debug', true], ['evidence', true], ['predict', true], ['variable', false], ['condition', false]],
+        { accuracy: 88, evidence: 79, retelling: 83, vocabulary: 80 },
+        [['streak', 0], ['evidence', 1]])),
+    seedStudent('room-14', 'Ava', 'Thomas', 5, '🦄', 'kernel9', ['thomas.home@example.com'], 560, { patterns: 95, sequencing: 90, loops: 87, debugging: 82 }, 18, 2, { read: 15, type: 14 }, null,
+      seedReading(9, [[2, 25], [3, 22], [4, 20], [5, 18]],
+        [['algorithm', true], ['sequence', true], ['loop', true], ['debug', true], ['evidence', true], ['variable', true], ['condition', true], ['predict', true], ['efficient', false], ['binary', false]],
+        { accuracy: 95, evidence: 88, retelling: 90, vocabulary: 92 },
+        [['accuracy', 2], ['story', 3]])),
   ],
 }
 
@@ -89,7 +142,13 @@ export function loadData() {
     if (saved?.classes && saved?.students) {
       return {
         ...saved,
-        students: saved.students.map((s) => ({ parentEmails: [], lastReport: null, ...s })),
+        students: saved.students.map((s) => ({
+          parentEmails: [],
+          lastReport: null,
+          reading: emptyReading(),
+          poppyItem: null,
+          ...s,
+        })),
       }
     }
   } catch {
@@ -153,6 +212,8 @@ export function createStudent({ firstName, lastName, grade, classId, parentEmail
     notes: '',
     parentEmails,
     lastReport: null,
+    reading: emptyReading(),
+    poppyItem: null,
   }
 }
 

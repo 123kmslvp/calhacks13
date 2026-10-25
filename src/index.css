@@ -357,3 +357,257 @@ body {
   border-radius: 999px;
   box-shadow: 0 3px 0 #e8b931;
 }
+
+/* ---------- Poppy growth stages ---------- */
+/* Everything is sized in em off the container's font-size, so one set of
+   rules works at every size. */
+
+.poppy-grow { width: 1em; height: 1em; font-size: 140px; }
+.poppy-grow.poppy-small { font-size: 90px; }
+.poppy-grow.poppy-xl { font-size: 190px; }
+
+.poppy-grow .eye { width: 0.055em; height: 0.078em; }
+.poppy-grow .poppy-face { position: absolute; display: flex; gap: 0.07em; }
+
+.kernel {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
+  box-shadow: inset -0.03em -0.04em 0 rgba(120, 60, 0, 0.12);
+}
+.kernel .poppy-face { top: 42%; bottom: auto; }
+.stage-kernel { background: radial-gradient(circle, #fffaf0 0%, #fff0c2 100%); }
+.stage-kernel .kernel { width: 0.3em; height: 0.38em; background: linear-gradient(160deg, #fff6d1, #ffd76a); }
+.stage-warm { background: radial-gradient(circle, #fff3b8 0%, #ffd98a 100%); }
+.stage-warm .kernel { width: 0.34em; height: 0.43em; background: linear-gradient(160deg, #ffe38a, #f5a623); }
+.stage-sizzle { background: radial-gradient(circle, #ffe7b0 0%, #ffc477 100%); }
+.stage-sizzle .kernel {
+  width: 0.38em;
+  height: 0.48em;
+  background: linear-gradient(160deg, #ffc56b, #ff7a2e);
+  animation: sizzle 0.35s ease-in-out infinite alternate;
+}
+
+.pop-body { position: relative; display: grid; place-items: center; }
+.poppy-grow .poppy-emoji { font-size: 0.48em; }
+.pop-body .poppy-face { bottom: 0.03em; gap: 0.13em; }
+.pop-body .eye { width: 0.07em; height: 0.1em; }
+.stage-pop .pop-body { transform: scale(0.82); }
+.stage-big { background: radial-gradient(circle, #fff3b8 0%, #ffd35c 100%); }
+.stage-big .pop-body { transform: scale(1.02); }
+.stage-super {
+  background: radial-gradient(circle, #fff6c9 0%, #ffcf3d 100%);
+  box-shadow: 0 0 0 0.03em #fff, 0 0 0.18em #ffd35c;
+}
+.stage-super .pop-body { transform: scale(1.14); }
+
+.sizzle, .sparkle {
+  position: absolute;
+  top: 12%;
+  right: 16%;
+  font-size: 0.16em;
+  animation: twinkle 1.2s ease-in-out infinite;
+}
+
+.poppy-item { position: absolute; font-size: 0.2em; line-height: 1; }
+.item-bow { top: 16%; right: 24%; transform: rotate(18deg); }
+.item-glasses { top: 37%; left: 50%; transform: translateX(-50%); font-size: 0.17em; }
+.stage-pop .item-glasses, .stage-big .item-glasses, .stage-super .item-glasses { top: 58%; }
+.item-cap { top: 13%; left: 50%; transform: translateX(-50%); }
+.item-scarf { bottom: 12%; left: 50%; transform: translateX(-50%); }
+.item-crown { top: 2%; left: 50%; transform: translateX(-50%); }
+.stage-kernel .item-cap, .stage-warm .item-cap, .stage-sizzle .item-cap,
+.stage-kernel .item-crown, .stage-warm .item-crown, .stage-sizzle .item-crown { top: 14%; }
+.stage-kernel .item-scarf, .stage-warm .item-scarf, .stage-sizzle .item-scarf { bottom: 20%; }
+
+@keyframes sizzle {
+  from { transform: rotate(-4deg); }
+  to { transform: rotate(4deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ---------- Progress screen ---------- */
+
+.card-progress { max-width: 640px; text-align: left; }
+.card-progress > section { margin-top: 22px; }
+.card-progress .heading { margin: 0 0 8px; }
+
+.progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.progress-top .heading { margin: 0; font-size: 1.8rem; }
+
+.poppy-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  background: #fff6e0;
+  border-radius: 28px;
+}
+.poppy-hero .poppy { margin: 0; flex-shrink: 0; }
+.poppy-hero-text { flex: 1; min-width: 0; }
+.poppy-hero-text .heading { font-size: 1.6rem; }
+.poppy-about { margin: 0 0 12px; font-size: 1.1rem; }
+.grow-text { margin: 8px 0 0; font-weight: 600; }
+
+/* Meters: one hue each, fill on a same-ramp light track. */
+.grow-meter,
+.comp-meter {
+  height: 16px;
+  background: #fde0ea;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.grow-meter span,
+.comp-meter span {
+  display: block;
+  height: 100%;
+  background: #e0437f;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+.comp-meter { height: 12px; background: #ece3f8; }
+.comp-meter span { background: #7a4cbe; }
+
+.stage-path {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+.stage-step { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.8rem; }
+.stage-dot {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50%;
+  background: #f1e8ff;
+  color: #7a5c9a;
+}
+.stage-step.done .stage-dot { background: #e0437f; color: #fff; }
+.stage-step.current .stage-dot { background: #ffd35c; box-shadow: 0 0 0 4px #fff1b8; }
+.stage-step.locked { color: #9a83b5; }
+.stage-name { font-weight: 600; line-height: 1.2; }
+.stage-min { color: #7a5c9a; }
+
+.why-points { padding: 18px 20px; background: #f7f1ff; border-radius: 24px; }
+.why-points .note { margin-bottom: 12px; font-size: 1.05rem; color: inherit; }
+.earn-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.earn-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border-radius: 14px;
+  font-size: 1.05rem;
+}
+.earn-list strong { color: #4a2c6b; }
+
+.dress-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.dress-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  background: #fff;
+  border: 3px solid #e3d4fb;
+  border-radius: 18px;
+  cursor: pointer;
+}
+.dress-item:hover:not(:disabled) { border-color: #c4a8f3; transform: translateY(-2px); }
+.dress-item.selected { background: #fff0f6; border-color: #ff5c9d; box-shadow: 0 4px 0 #ffc2dc; }
+.dress-item.locked { cursor: not-allowed; color: #9a83b5; background: #faf7ff; border-style: dashed; }
+.dress-item:focus-visible { outline: 4px solid #35b8e8; outline-offset: 2px; }
+.dress-icon { font-size: 1.8rem; line-height: 1; }
+
+.cheer { padding: 16px 20px; background: #e2f8ee; border-radius: 24px; }
+.cheer-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cheer-list li {
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #fff;
+  border-radius: 16px;
+}
+
+.stat-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  background: #fff;
+  border: 3px solid #f1e8ff;
+  border-radius: 20px;
+}
+.stat-icon { font-size: 1.5rem; }
+.stat-value { font-size: 2.4rem; font-weight: 700; line-height: 1.1; color: #4a2c6b; }
+.stat-value small { font-size: 1rem; font-weight: 600; }
+.stat-label { font-weight: 600; }
+.stat-sub { font-size: 0.9rem; color: #7a5c9a; }
+
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.word {
+  padding: 4px 12px;
+  font-weight: 600;
+  background: #fff;
+  border: 2px dashed #d3c0f0;
+  border-radius: 999px;
+}
+.word.mastered { background: #f1e8ff; border-style: solid; border-color: #f1e8ff; }
+
+.comp-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.comp-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; margin-bottom: 6px; }
+.comp-hint { display: block; font-size: 0.9rem; color: #7a5c9a; }
+.comp-level { font-weight: 600; white-space: nowrap; }
+.comp-level span { color: #c99400; }
+
+/* Poppy teaser on the student page */
+.poppy-teaser {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 4px 0 8px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: inherit;
+  text-align: left;
+  background: #fff6e0;
+  border: 3px solid #ffe7a8;
+  border-radius: 22px;
+  cursor: pointer;
+}
+.poppy-teaser:hover { border-color: #ffd35c; }
+.poppy-teaser:focus-visible { outline: 4px solid #35b8e8; outline-offset: 2px; }
+.poppy-teaser .poppy { margin: 0; flex-shrink: 0; animation: none; }
+.teaser-text { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.teaser-text .grow-meter { height: 10px; }
+.teaser-go { font-weight: 700; color: #e0437f; white-space: nowrap; }
+
+@media (max-width: 560px) {
+  .poppy-hero { flex-direction: column; text-align: center; }
+  .stage-path { grid-template-columns: repeat(3, 1fr); row-gap: 12px; }
+  .stat-tiles { grid-template-columns: 1fr 1fr; }
+}
