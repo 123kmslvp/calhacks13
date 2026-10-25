@@ -33,6 +33,9 @@ const TOOL_PHRASES = {
   speak: 'saying answers out loud',
 }
 
+const joinList = (items) =>
+  items.length > 2 ? `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}` : items.join(' and ')
+
 const formatDate = (date) =>
   date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
@@ -91,7 +94,7 @@ export function buildReport(student, className) {
 
   const activity =
     sessions > 0
-      ? `${name} read ${sessions} ${sessions === 1 ? 'chapter' : 'chapters'}${minutes ? ` (about ${minutes} minutes of reading)` : ''}${stories.length ? ` from ${stories.map((t) => `“${t}”`).join(' and ')}` : ''}, and earned ${points} Pop Points.`
+      ? `${name} read ${sessions} ${sessions === 1 ? 'chapter' : 'chapters'}${minutes ? ` (about ${minutes} ${minutes === 1 ? 'minute' : 'minutes'} of reading)` : ''}${stories.length ? ` from ${joinList(stories.map((t) => `“${t}”`))}` : ''}, and earned ${points} Pop ${points === 1 ? 'Point' : 'Points'}.`
       : `${name} didn't play this week — that's okay! A little encouragement to log in can go a long way.`
 
   const homeTip =

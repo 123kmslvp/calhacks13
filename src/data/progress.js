@@ -111,9 +111,9 @@ export function encouragements(student) {
   const messages = []
 
   if (minutesToday > 0) {
-    messages.push(`You practiced reading for ${minutesToday} minutes today!`)
+    messages.push(`You practiced reading for ${minutesToday} ${minutesToday === 1 ? 'minute' : 'minutes'} today!`)
   } else if (minutesWeek > 0) {
-    messages.push(`You read for ${minutesWeek} minutes this week!`)
+    messages.push(`You read for ${minutesWeek} ${minutesWeek === 1 ? 'minute' : 'minutes'} this week!`)
   }
 
   const weekAgo = dayKey(new Date(Date.now() - 6 * 86400000))
@@ -127,7 +127,7 @@ export function encouragements(student) {
   }
 
   const { next, toNext } = poppyGrowth(student.points)
-  if (next) messages.push(`Only ${toNext} more Pop Points until Poppy becomes a ${next.name}!`)
+  if (next) messages.push(`Only ${toNext} more Pop ${toNext === 1 ? 'Point' : 'Points'} until Poppy becomes a ${next.name}!`)
 
   if (messages.length === 1 && student.reading.storiesCompleted === 0) {
     messages.unshift('Every great reader starts somewhere. Your first story is waiting!')
@@ -358,7 +358,7 @@ export function applyGame(student, { game, correct, total }) {
   }
   return finish(student, { ...student, counters, reading }, [
     { label: `Played ${game}`, points: 10 },
-    { label: `${correct} of ${total} answers`, points: correct * 5 },
+    { label: `${correct} of ${total} ${total === 1 ? 'answer' : 'answers'}`, points: correct * 5 },
   ])
 }
 

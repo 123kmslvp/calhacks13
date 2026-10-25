@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { voiceSpeed } from '../a11y/accessibility.js'
 
 const synth = typeof window !== 'undefined' ? window.speechSynthesis : null
 export const narratorSupported = !!synth
@@ -37,7 +38,7 @@ export function useNarrator(paragraphs) {
       at += w.display.length + 1
     }
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.rate = slow ? 0.65 : 0.92
+    utterance.rate = (slow ? 0.65 : 0.92) * voiceSpeed()
     utterance.pitch = 1.1
     utterance.onboundary = (e) => {
       if (runRef.current !== run || e.name !== 'word') return

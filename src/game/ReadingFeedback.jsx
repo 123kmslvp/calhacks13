@@ -34,7 +34,7 @@ export default function ReadingFeedback({ chapter, result, grade, audioUrl, coac
       <div className="stat-tiles three">
         <div className="stat-tile">
           <span className="stat-value">{aloud.read}</span>
-          <span className="stat-label">words</span>
+          <span className="stat-label">{aloud.read === 1 ? 'word' : 'words'}</span>
         </div>
         <div className="stat-tile">
           <span className="stat-value">{Math.round(aloud.completion * 100)}%</span>

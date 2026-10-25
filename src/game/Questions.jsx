@@ -371,7 +371,7 @@ function OpenQuestion({ question, sentences, highlights, preferSpeak, passage, g
             <p>{agent.feedback}</p>
             <p className="agent-meta">
               <span className="agent-chip">Skill: {agent.skillPracticed}</span>
-              <span className="agent-chip">⭐ {agent.points} thinking points</span>
+              <span className="agent-chip">⭐ {agent.points} thinking {agent.points === 1 ? 'point' : 'points'}</span>
               {agent.meta?.source === 'claude' && <span className="agent-chip claude">Personalized by Claude</span>}
             </p>
             <SpeakButton text={`${agent.encouragement} ${agent.feedback}`} />

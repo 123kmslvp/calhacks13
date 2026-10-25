@@ -7,9 +7,19 @@ import QuestApp from './game/QuestApp.jsx'
 import Arcade from './game/arcade/Arcade.jsx'
 import TeacherLogin from './teacher/TeacherLogin.jsx'
 import TeacherDashboard from './teacher/TeacherDashboard.jsx'
+import AccessibilityPanel from './a11y/AccessibilityPanel.jsx'
 import { loadData, resetData, saveData } from './data/roster.js'
 
 export default function App() {
+  return (
+    <>
+      <AppScreens />
+      <AccessibilityPanel />
+    </>
+  )
+}
+
+function AppScreens() {
   const [page, setPage] = useState('welcome')
   const [data, setData] = useState(loadData)
   const [studentId, setStudentId] = useState(null)

@@ -48,7 +48,7 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue, 
           You got {summary.count} of {tricky.length}!
         </h2>
         {summary.total > 0 ? (
-          <p className="earned-line">+{summary.total} points</p>
+          <p className="earned-line">+{summary.total} {summary.total === 1 ? 'point' : 'points'}</p>
         ) : (
           <p className="note">Keep practicing!</p>
         )}
@@ -169,12 +169,17 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue, 
         </p>
       )}
 
+      {check.blocked && phase !== 'rescued' && (
+        <p className="mic-note" role="status">
+          The microphone is turned off. Tap the lock or mic icon next to the web address and choose Allow. Or say it out loud and tap the button.
+        </p>
+      )}
       <div className="rescue-controls">
         {phase === 'rescued' ? (
           <button type="button" className="start" onClick={() => next(true)}>
             Next →
           </button>
-        ) : check.supported ? (
+        ) : check.supported && !check.blocked ? (
           <button
             type="button"
             className={check.listening ? 'record-btn listening' : 'record-btn'}

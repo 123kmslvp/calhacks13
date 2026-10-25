@@ -629,4 +629,4 @@ export function parseStudentList(text, { defaultGrade, classId, students }) {
 export const TEMPLATE_CSV =
   'First Name,Last Name,Grade,Parent Email,Parent Email 2\n' +
   'Maya,Rivera,3,rivera.family@example.com,\n' +
-  'Leo,Kim,4,jkim@example.com,sam.kim@example.com\n'
+  'Leo,Kim,5,jkim@example.com,sam.kim@example.com\n'

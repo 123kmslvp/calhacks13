@@ -153,7 +153,7 @@ export function ActivityChart({ data, students, title }) {
                 <strong>{data[active].sessions}</strong> reading {data[active].sessions === 1 ? 'session' : 'sessions'}
               </span>
               <span className="tip-row muted">
-                {data[active].active} of {students} students read
+                {data[active].active} of {students} {students === 1 ? 'student' : 'students'} read
               </span>
             </div>
           )}

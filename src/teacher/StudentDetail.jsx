@@ -58,7 +58,7 @@ export default function StudentDetail({ student, classes, onBack, onUpdate, onRe
               )}
             </dd>
           </div>
-          <div><dt>This week</dt><dd>{info.sessionsThisWeek} sessions · {info.minutesThisWeek} min</dd></div>
+          <div><dt>This week</dt><dd>{info.sessionsThisWeek} {info.sessionsThisWeek === 1 ? 'session' : 'sessions'} · {info.minutesThisWeek} min</dd></div>
           <div><dt>Stories finished</dt><dd>{info.storiesCompleted}</dd></div>
           <div><dt>Last active</dt><dd>{lastActiveText(student.lastActive)}</dd></div>
         </dl>
@@ -206,7 +206,7 @@ export default function StudentDetail({ student, classes, onBack, onUpdate, onRe
         <section className="panel full">
           <div className="panel-head">
             <h3 className="panel-title">Critical-thinking responses</h3>
-            <span className="panel-sub">{responses.length} written or spoken explanations</span>
+            <span className="panel-sub">{responses.length} written or spoken {responses.length === 1 ? 'explanation' : 'explanations'}</span>
           </div>
           <p className="panel-sub">
             {student.firstName}’s own words when asked to explain with evidence — including how they answered

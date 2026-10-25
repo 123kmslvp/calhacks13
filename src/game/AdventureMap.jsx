@@ -38,7 +38,7 @@ export default function AdventureMap({ student, onPick }) {
         <h2 className="heading" id="map-heading">
           Pick a story
         </h2>
-        <SpeakButton text="Pick a story Pick a world, then pick a story." />
+        <SpeakButton text="Pick a story. Pick a world, then pick a story." />
       </div>
 
       {recommended.story && (

@@ -66,3 +66,81 @@
 .game-rescue { grid-column: 1 / -1; background: #fff1dc; border-color: #ffd9a8; }
 .game-card.locked { position: relative; cursor: default; opacity: 0.55; filter: grayscale(0.6); border-style: dashed; }
 .game-lock { position: absolute; top: 12px; right: 14px; font-size: 1.6rem; }
+
+/* ---------- Pathway games ---------- */
+
+.game-section { margin: 0 0 20px; }
+.game-section-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 2px; font-size: 1.3rem; text-align: left; }
+.game-section .note { margin: 0 0 8px; text-align: left; }
+.game-card span:not(.game-icon):not(.game-lock):not(.skill-chip) { font-size: 0.9rem; color: #6a4c8a; }
+.game-picture, .game-storymap { background: #f1ecff; }
+.game-echo, .game-listen { background: #e5f6ff; }
+.game-build, .game-workshop { background: #e2f8ee; }
+.game-predict, .game-tricky { background: #fff0f3; }
+
+.game-instructions-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.game-instructions-row .game-instructions { margin: 8px 0; }
+
+/* Picture Match and Predict & Peek */
+.picture-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0; }
+.picture-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 120px; padding: 12px 6px;
+  font-family: inherit; color: inherit; background: #fff; border: 4px solid #e3d4fb; border-radius: 22px; cursor: pointer;
+}
+.picture-btn:hover:not(:disabled) { border-color: #c4a8f3; transform: translateY(-2px); }
+.picture-btn.right { background: #e2f8ee; border-color: #3fbf86; }
+.picture-btn.wrong { opacity: 0.5; border-style: dashed; }
+.picture-btn.picked { background: #fff9e6; border-color: #e8b93a; box-shadow: 0 0 0 4px #fff1b8; }
+.picture-art { font-size: 2.6rem; line-height: 1.1; letter-spacing: 2px; }
+.picture-art.small { font-size: 1.8rem; }
+.picture-tag { font-size: 0.95rem; font-weight: 700; }
+.peek { text-align: left; }
+.rate-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 10px 0; }
+.choice-btn.picked { background: #fff9e6; border-color: #e8b93a; }
+
+/* Story Map and the diagram prompt */
+.story-map, .diagram-boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 0 0 14px; padding: 0; list-style: none; }
+.map-box, .diagram-box {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 130px; padding: 10px; text-align: center;
+  color: #9a83b5; border: 3px dashed #e3d4fb; border-radius: 18px;
+}
+.map-box.next { border-color: #e8b93a; background: #fff9e6; color: inherit; }
+.map-box.filled { color: inherit; background: #e2f8ee; border: 3px solid #8de0c4; }
+.diagram-box { color: inherit; border-style: solid; background: #fff; }
+.diagram-box .answer-box { width: 100%; margin: 0; }
+.diagram-box .answer-row { flex-direction: column; }
+.map-art { font-size: 2.2rem; }
+.map-text { font-size: 0.95rem; }
+.map-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.map-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; font-family: inherit; font-size: 0.95rem; color: inherit; background: #fff; border: 3px solid #e3d4fb; border-radius: 18px; cursor: pointer; }
+.map-card:hover { border-color: #c4a8f3; transform: translateY(-2px); }
+.scene-strip { display: flex; justify-content: center; gap: 10px; margin: 0 0 10px; }
+.scene-card { padding: 8px 14px; font-size: 2rem; background: #fff; border: 3px solid #e3d4fb; border-radius: 18px; }
+
+/* Echo Reader */
+.echo-sentence { margin: 12px 0; font-size: 1.5rem; line-height: 1.8; }
+.echo-sentence .w { padding: 0 2px; }
+
+/* Word Workshop */
+.workshop-word { font-size: 1.8rem; }
+
+/* Sentence Builder */
+.build-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 68px; padding: 10px; margin: 10px 0; background: #fff; border: 3px dashed #e3d4fb; border-radius: 18px; }
+.build-line.right { background: #e2f8ee; border: 3px solid #8de0c4; }
+.build-empty { color: #9a83b5; }
+.build-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 12px 0; }
+.build-word { min-height: 48px; padding: 8px 16px; font-family: inherit; font-size: 1.25rem; font-weight: 600; color: inherit; background: #fff3b8; border: 3px solid #ffd35c; border-radius: 14px; cursor: pointer; }
+.build-word.placed { background: #fff; border-color: #a685e0; }
+.build-word:hover:not(:disabled) { transform: translateY(-2px); }
+
+.speak-slow { background: #fff9e6; border-color: #f1dca0; }
+
+/* Targets are big enough for small hands and shaky pointers. */
+.game button { min-height: 44px; }
+
+@media (max-width: 640px) {
+  .picture-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .picture-art { font-size: 2rem; }
+}
+
+.mic-note { margin: 8px 0; padding: 10px 14px; font-size: 1rem; text-align: left; background: #fff9e6; border: 3px solid #ffe7a8; border-radius: 14px; }

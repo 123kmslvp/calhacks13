@@ -22,7 +22,7 @@ export default function Poppy({ size = 'large', stage, item }) {
     <div
       className={`poppy poppy-grow poppy-${size}${stage ? ` stage-${stage.id}` : ''}`}
       role="img"
-      aria-label={`${label}${item ? `, wearing a ${item.label.toLowerCase()}` : ''}`}
+      aria-label={`${label}${item ? `, wearing ${/shades$/i.test(item.label) ? '' : 'a '}${item.label.toLowerCase()}` : ''}`}
     >
       <span className="poppy-sparkle" aria-hidden="true" />
       <span className="poppy-art">

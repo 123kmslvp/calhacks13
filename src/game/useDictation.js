@@ -9,6 +9,7 @@ export const dictationSupported = !!SpeechRecognition
 // the full text so far (what was there before + what they've said).
 export function useDictation(onText) {
   const [listening, setListening] = useState(false)
+  const [problem, setProblem] = useState(null) // null | 'blocked' | 'network'
   const recognitionRef = useRef(null)
   const onTextRef = useRef(onText)
   onTextRef.current = onText
@@ -28,6 +29,7 @@ export function useDictation(onText) {
   const start = useCallback(
     (existingText = '') => {
       if (!SpeechRecognition) return
+      setProblem(null)
       window.speechSynthesis?.cancel()
       const recognition = new SpeechRecognition()
       recognition.lang = 'en-US'
@@ -46,7 +48,11 @@ export function useDictation(onText) {
         // Capitalize the first letter so it reads like a sentence.
         onTextRef.current(joined.charAt(0).toUpperCase() + joined.slice(1))
       }
-      recognition.onerror = () => stop()
+      recognition.onerror = (event) => {
+        if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(event.error)) setProblem('blocked')
+        else if (event.error === 'network') setProblem('network')
+        stop()
+      }
       recognition.onend = () => setListening(false)
       recognitionRef.current = recognition
       try {
@@ -59,5 +65,5 @@ export function useDictation(onText) {
     [stop]
   )
 
-  return { start, stop, listening, supported: dictationSupported }
+  return { start, stop, listening, problem, supported: dictationSupported }
 }

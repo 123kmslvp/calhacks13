@@ -35,7 +35,7 @@ export default function ProgressPage({ student, onBack, onSelectItem, onRead, on
   const drawings = loadDrawings(student.id)
 
   const growthText = next
-    ? `${toNext} more Pop Points until Poppy becomes a ${next.name}!`
+    ? `${toNext} more Pop ${toNext === 1 ? 'Point' : 'Points'} until Poppy becomes a ${next.name}!`
     : 'Poppy is fully grown. You did it!'
 
   return (

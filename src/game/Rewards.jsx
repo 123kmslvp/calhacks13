@@ -26,7 +26,7 @@ export default function Rewards({ result, session, onContinue }) {
         ))}
       </ul>
 
-      <p className="earned-big">+{total} points</p>
+      <p className="earned-big">+{total} {total === 1 ? 'point' : 'points'}</p>
 
       {grewTo && (
         <div className="grew" role="status">

@@ -318,6 +318,7 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
             passage={chapter.text}
             grade={student.grade ?? story?.grade}
             preferSpeak={preferSpeak}
+            art={chapter.art}
             onDone={() => setStep('questions')}
           />
         )}
@@ -383,7 +384,7 @@ export default function QuestApp({ student, preferences, onSaveStudent, onExit, 
               <img className="saved-drawing" src={celebration.image} alt="Your drawing" />
             )}
             {celebration.text && <blockquote className="writing-show">{celebration.text}</blockquote>}
-            <p className="earned-line">+{celebration.total} points</p>
+            <p className="earned-line">+{celebration.total} {celebration.total === 1 ? 'point' : 'points'}</p>
             {celebration.grewTo && (
               <div className="grew" role="status">
                 <Poppy size="small" stage={celebration.grewTo} />

@@ -7,13 +7,26 @@ import { applyGame, applyWordPractice } from '../../data/progress.js'
 import { tokenizePassage } from '../readAloud.js'
 import WordRescue from '../WordRescue.jsx'
 import { EvidenceHunt, MissingWord, SequenceGame, VocabPop } from './Games.jsx'
+import { EchoReader, PictureMatch, PredictPeek, SentenceBuilder, SoundDetective, StoryMap, TrueOrTricky, WordWorkshop } from './PathwayGames.jsx'
+import { PATHWAYS, pathwayById } from '../pathways.js'
 import './arcade.css'
 
+// Every game belongs to one of the four learning pathways, so each way of
+// learning (seeing, listening and speaking, reading and writing, exploring)
+// has games that fit it. Students can play any of them.
 export const GAMES = [
-  { id: 'sequence', icon: '🧩', name: 'Story Sequencer', skill: 'Retelling in order', about: 'Put the story events back in the right order.', perChapter: true, Component: SequenceGame },
-  { id: 'vocab', icon: '🍿', name: 'Vocab Pop', skill: 'Word meanings', about: 'Match words to their meanings to pop the popcorn!', Component: VocabPop },
-  { id: 'evidence', icon: '🔍', name: 'Evidence Detective', skill: 'Finding proof', about: 'Find the sentence in the story that proves each answer.', perChapter: true, Component: EvidenceHunt },
-  { id: 'cloze', icon: '✏️', name: 'Missing Word', skill: 'Context clues', about: 'Pick the word that fits in the sentence.', Component: MissingWord },
+  { id: 'picture', pathway: 'visual', icon: '🖼️', name: 'Picture Match', skill: 'Visualizing', about: 'Hear a sentence, pick the picture that shows it.', perChapter: true, Component: PictureMatch },
+  { id: 'storymap', pathway: 'visual', icon: '🗺️', name: 'Story Map', skill: 'Story structure', about: 'Put the pictures in order on a story map.', perChapter: true, Component: StoryMap },
+  { id: 'sequence', pathway: 'visual', icon: '🧩', name: 'Story Sequencer', skill: 'Retelling in order', about: 'Put the story events back in the right order.', perChapter: true, Component: SequenceGame },
+  { id: 'echo', pathway: 'listenSpeak', icon: '🎤', name: 'Echo Reader', skill: 'Fluency', about: 'Hear a sentence, then say it like a storyteller.', perChapter: true, Component: EchoReader },
+  { id: 'listen', pathway: 'listenSpeak', icon: '👂', name: 'Sound Detective', skill: 'Listening', about: 'Hear a clue and tap the word it describes.', Component: SoundDetective },
+  { id: 'build', pathway: 'readWrite', icon: '🔤', name: 'Sentence Builder', skill: 'Sentences', about: 'Tap the words to build the sentence.', perChapter: true, Component: SentenceBuilder },
+  { id: 'workshop', pathway: 'readWrite', icon: '📝', name: 'Word Workshop', skill: 'Writing with new words', about: 'Use a story word in your own sentence.', Component: WordWorkshop },
+  { id: 'vocab', pathway: 'readWrite', icon: '🍿', name: 'Vocab Pop', skill: 'Word meanings', about: 'Match words to their meanings to pop the popcorn!', Component: VocabPop },
+  { id: 'cloze', pathway: 'readWrite', icon: '✏️', name: 'Missing Word', skill: 'Context clues', about: 'Pick the word that fits in the sentence.', Component: MissingWord },
+  { id: 'predict', pathway: 'interactive', icon: '🔮', name: 'Predict & Peek', skill: 'Predicting', about: 'Guess what happens next, then peek!', perChapter: true, Component: PredictPeek },
+  { id: 'tricky', pathway: 'interactive', icon: '🕵️', name: 'True or Tricky?', skill: 'Fact-checking', about: 'Does it match the story, or is it a sneaky mix-up?', perChapter: true, Component: TrueOrTricky },
+  { id: 'evidence', pathway: 'interactive', icon: '🔍', name: 'Evidence Detective', skill: 'Finding proof', about: 'Find the sentence in the story that proves each answer.', perChapter: true, Component: EvidenceHunt },
 ]
 
 // Story games: new ways to practice with the stories — each one builds a
@@ -36,6 +49,9 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
   const [playKey, setPlayKey] = useState(0)
   const [result, setResult] = useState(null)
   const story = stories.find((s) => s.id === storyId) ?? stories[0]
+  // The student's own pathway comes first; the rest stay open to try.
+  const myPathway = pathwayById(student.pathway)
+  const orderedPathways = myPathway ? [myPathway, ...PATHWAYS.filter((p) => p.id !== myPathway.id)] : PATHWAYS
   const chapter = story?.chapters[chapterIndex] ?? story?.chapters[0]
   // Tricky words saved from reading aloud, for the Word Rescue game.
   const tricky = (student.reading.trickyWords ?? [])
@@ -117,24 +133,40 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
                 })}
               </select>
             </label>
-            <div className="game-grid">
-              {tricky.length > 0 ? (
-                <button type="button" className="game-card game-rescue" onClick={() => setGame({ id: 'rescue', icon: '🛟', name: 'Word Rescue' })}>
-                  <strong>Word Rescue</strong>
-                </button>
-              ) : (
-                <div className="game-card game-rescue locked" aria-label="Word Rescue, locked">
-                  <strong>Word Rescue</strong>
-                  <span>Read aloud to unlock</span>
-                  <span className="game-lock" aria-hidden="true">🔒</span>
+            {orderedPathways.map((p) => (
+              <section key={p.id} className="game-section" aria-labelledby={`games-${p.id}`}>
+                <h3 id={`games-${p.id}`} className="game-section-title">
+                  <span aria-hidden="true">{p.icon}</span> {p.name}
+                  {p.id === myPathway?.id && <span className="agent-chip claude">Your way</span>}
+                </h3>
+                <p className="note">{p.about}</p>
+                <div className="game-grid">
+                  {p.id === 'listenSpeak' &&
+                    (tricky.length > 0 ? (
+                      <button type="button" className="game-card game-rescue" onClick={() => setGame({ id: 'rescue', icon: '🛟', name: 'Word Rescue' })}>
+                        <span className="game-icon" aria-hidden="true">🛟</span>
+                        <strong>Word Rescue</strong>
+                        <span>Practice the words you found tricky.</span>
+                      </button>
+                    ) : (
+                      <div className="game-card game-rescue locked" aria-label="Word Rescue, locked. Read aloud to unlock.">
+                        <span className="game-icon" aria-hidden="true">🛟</span>
+                        <strong>Word Rescue</strong>
+                        <span>Read aloud to unlock</span>
+                        <span className="game-lock" aria-hidden="true">🔒</span>
+                      </div>
+                    ))}
+                  {GAMES.filter((g) => g.pathway === p.id).map((g) => (
+                    <button key={g.id} type="button" className={`game-card game-${g.id}`} onClick={() => setGame(g)}>
+                      <span className="game-icon" aria-hidden="true">{g.icon}</span>
+                      <strong>{g.name}</strong>
+                      <span>{g.about}</span>
+                      <span className="skill-chip">{g.skill}</span>
+                    </button>
+                  ))}
                 </div>
-              )}
-              {GAMES.map((g) => (
-                <button key={g.id} type="button" className={`game-card game-${g.id}`} onClick={() => setGame(g)}>
-                  <strong>{g.name}</strong>
-                </button>
-              ))}
-            </div>
+              </section>
+            ))}
           </>
         )}
 

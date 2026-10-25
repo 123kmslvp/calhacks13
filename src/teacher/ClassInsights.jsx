@@ -54,7 +54,7 @@ export default function ClassInsights({ roster, className, onSelectStudent }) {
             value={summary.sessionsThisWeek}
             delta={summary.sessionsChange}
             period="last week"
-            note={`about ${summary.minutesThisWeek} minutes in all`}
+            note={`about ${summary.minutesThisWeek} ${summary.minutesThisWeek === 1 ? 'minute' : 'minutes'} in all`}
           />
           <StatTile label="Comprehension" value={pct(summary.comprehension)} delta={summary.comprehensionChange} unit=" pts" />
           <StatTile label="Reading accuracy" value={pct(summary.accuracy)} delta={summary.accuracyChange} unit=" pts" />

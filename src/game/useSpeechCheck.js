@@ -9,6 +9,7 @@ const SpeechRecognition =
 export function useSpeechCheck() {
   const [listening, setListening] = useState(false)
   const [heard, setHeard] = useState('')
+  const [blocked, setBlocked] = useState(false) // mic permission denied or no mic
   const recognitionRef = useRef(null)
 
   const stop = useCallback(() => {
@@ -55,10 +56,14 @@ export function useSpeechCheck() {
           setHeard(best.trim())
           onPartial?.(best.trim())
         }
-        recognition.onerror = finish
+        recognition.onerror = (event) => {
+          if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(event.error)) setBlocked(true)
+          finish()
+        }
         recognition.onend = finish
 
         setHeard('')
+        setBlocked(false)
         setListening(true)
         recognitionRef.current = recognition
         try {
@@ -70,5 +75,5 @@ export function useSpeechCheck() {
     [stop]
   )
 
-  return { listen, listening, heard, stop, supported: !!SpeechRecognition }
+  return { listen, listening, heard, stop, blocked, supported: !!SpeechRecognition }
 }

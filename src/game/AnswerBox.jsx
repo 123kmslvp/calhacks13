@@ -36,6 +36,16 @@ export default function AnswerBox({ value, onChange, onSpeak, placeholder, prefe
           ))}
         </div>
       )}
+      {preferSpeak && !dictation.supported && (
+        <p className="mic-note" role="status">This browser can't listen to you. Type your answer, or open Kernel Quest in Chrome, Edge, or Safari to talk instead.</p>
+      )}
+      {dictation.problem && (
+        <p className="mic-note" role="status">
+          {dictation.problem === 'blocked'
+            ? 'The microphone is turned off. Tap the lock or mic icon next to the web address and choose Allow. You can also type your answer.'
+            : 'The microphone could not connect to the internet. Try again, or type your answer.'}
+        </p>
+      )}
       <div className={preferSpeak ? 'answer-row speak-first' : 'answer-row'}>
         <textarea
           className="answer-input"

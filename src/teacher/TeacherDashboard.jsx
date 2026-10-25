@@ -129,7 +129,7 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
 
   const deleteClass = () => {
     const message = roster.length
-      ? `Delete ${activeClass.name} and its ${roster.length} students? Their logins will stop working.`
+      ? `Delete ${activeClass.name} and its ${roster.length} ${roster.length === 1 ? 'student' : 'students'}? ${roster.length === 1 ? 'Their login' : 'Their logins'} will stop working.`
       : `Delete ${activeClass.name}?`
     if (!window.confirm(message)) return
     setData((d) => ({
@@ -379,7 +379,7 @@ export default function TeacherDashboard({ data, setData, onLogout, onResetDemo 
         <div className="panel-head">
           <h2 className="panel-title">{activeClass.name} overview</h2>
           <div className="panel-actions">
-            <span className="panel-sub">{roster.length} students</span>
+            <span className="panel-sub">{roster.length} {roster.length === 1 ? 'student' : 'students'}</span>
             <button className="t-btn ghost small" onClick={renameClass}>✏️ Rename</button>
             <button className="t-btn ghost small" onClick={deleteClass}>🗑️ Delete class</button>
           </div>
