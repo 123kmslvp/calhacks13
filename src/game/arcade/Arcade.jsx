@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Poppy from '../../components/Poppy.jsx'
 import SpeakButton from '../../components/SpeakButton.jsx'
-import { STORIES, findStory, isWorldUnlocked, worldOf } from '../../data/stories/index.js'
+import { STORIES } from '../../data/stories/index.js'
 import { applyGame, applyWordPractice } from '../../data/progress.js'
 import { tokenizePassage } from '../readAloud.js'
 import WordRescue from '../WordRescue.jsx'
@@ -17,15 +17,25 @@ export const GAMES = [
 
 // Story games: new ways to practice with the stories — each one builds a
 // different reading skill. Starts with the story the student read last.
-export default function Arcade({ student, initialStoryId, onSaveStudent, onExit, exitLabel = 'Home' }) {
+// Games only use what the student has actually read: stories with at least
+// one finished chapter, and only those finished chapters.
+export function readStories(student) {
+  const stars = student.reading.chapterStars ?? {}
+  return STORIES.map((s) => ({ ...s, chapters: s.chapters.filter((c) => (stars[c.id] ?? 0) > 0) })).filter(
+    (s) => s.chapters.length > 0
+  )
+}
+
+export default function Arcade({ student, initialStoryId, onSaveStudent, onExit, onRead, exitLabel = 'Home' }) {
+  const stories = readStories(student)
   const lastStory = initialStoryId ?? student.history?.at(-1)?.storyId
   const [game, setGame] = useState(null)
-  const [story, setStory] = useState(() => findStory(lastStory) ?? STORIES[0])
+  const [storyId, setStoryId] = useState(() => (stories.some((s) => s.id === lastStory) ? lastStory : stories[0]?.id))
   const [chapterIndex, setChapterIndex] = useState(0)
   const [playKey, setPlayKey] = useState(0)
   const [result, setResult] = useState(null)
-  const stories = STORIES.filter((s) => isWorldUnlocked(worldOf(s), student.points))
-  const chapter = story.chapters[chapterIndex]
+  const story = stories.find((s) => s.id === storyId) ?? stories[0]
+  const chapter = story?.chapters[chapterIndex] ?? story?.chapters[0]
   // Tricky words saved from reading aloud, for the Word Rescue game.
   const tricky = (student.reading.trickyWords ?? [])
     .filter((w) => !w.rescuedOn)
@@ -57,7 +67,30 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
           <span className="points" aria-label={`${student.points} Pop Points`}>⭐ {student.points}</span>
         </div>
 
-        {!game && (
+        {!story && (
+          <>
+            <div className="bubble">
+              <Poppy size="small" />
+              <p className="message">Read a story first to open the games!</p>
+              <SpeakButton text="Read a story first to open the games!" />
+            </div>
+            <div className="game-grid">
+              {GAMES.map((g) => (
+                <div key={g.id} className={`game-card game-${g.id} locked`} aria-label={`${g.name}, locked`}>
+                  <strong>{g.name}</strong>
+                  <span className="game-lock" aria-hidden="true">🔒</span>
+                </div>
+              ))}
+            </div>
+            <div className="done-actions">
+              <button type="button" className="start" onClick={onRead}>
+                Read a story
+              </button>
+            </div>
+          </>
+        )}
+
+        {story && !game && (
           <>
             <div className="bubble">
               <Poppy size="small" />
@@ -69,27 +102,34 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
               <select
                 value={story.id}
                 onChange={(e) => {
-                  setStory(findStory(e.target.value))
+                  setStoryId(e.target.value)
                   setChapterIndex(0)
                 }}
               >
-                {stories.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title}
-                  </option>
-                ))}
+                {STORIES.map((s) => {
+                  const read = stories.some((r) => r.id === s.id)
+                  return (
+                    <option key={s.id} value={s.id} disabled={!read}>
+                      {read ? s.title : `🔒 ${s.title}`}
+                    </option>
+                  )
+                })}
               </select>
             </label>
             <div className="game-grid">
-              {tricky.length > 0 && (
+              {tricky.length > 0 ? (
                 <button type="button" className="game-card game-rescue" onClick={() => setGame({ id: 'rescue', icon: '🛟', name: 'Word Rescue' })}>
-                  <span className="game-icon" aria-hidden="true">🛟</span>
                   <strong>Word Rescue</strong>
                 </button>
+              ) : (
+                <div className="game-card game-rescue locked" aria-label="Word Rescue, locked">
+                  <strong>Word Rescue</strong>
+                  <span>Read aloud to unlock</span>
+                  <span className="game-lock" aria-hidden="true">🔒</span>
+                </div>
               )}
               {GAMES.map((g) => (
                 <button key={g.id} type="button" className={`game-card game-${g.id}`} onClick={() => setGame(g)}>
-                  <span className="game-icon" aria-hidden="true">{g.icon}</span>
                   <strong>{g.name}</strong>
                 </button>
               ))}
@@ -115,7 +155,7 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
           <section aria-labelledby="game-heading">
             <div className="game-head">
               <h2 className="heading" id="game-heading">
-                {game.icon} {game.name}
+                {game.name}
               </h2>
               <span className="note">{story.title}</span>
             </div>
@@ -133,7 +173,7 @@ export default function Arcade({ student, initialStoryId, onSaveStudent, onExit,
                       setPlayKey((k) => k + 1)
                     }}
                   >
-                    Chapter {i + 1}
+                    {c.title}
                   </button>
                 ))}
               </div>
