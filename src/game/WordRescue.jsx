@@ -14,7 +14,7 @@ const matchedInSentence = (sentence, transcript) =>
 
 // Word Rescue: for each tricky word, the student ① hears it and says it out
 // loud, then ② reads it again in its sentence from the story.
-export default function WordRescue({ tricky, sentences, onComplete, onContinue }) {
+export default function WordRescue({ tricky, sentences, onComplete, onContinue, continueLabel = 'Keep going →' }) {
   const check = useSpeechCheck()
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState('word') // word | sentence | rescued
@@ -45,17 +45,17 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
       <section className="rescue" aria-labelledby="rescue-done">
         <Poppy size="small" />
         <h2 className="heading" id="rescue-done">
-          You rescued {summary.count} of {tricky.length} tricky {tricky.length === 1 ? 'word' : 'words'}! 🛟
+          You got {summary.count} of {tricky.length}!
         </h2>
         {summary.total > 0 ? (
-          <p className="earned-line">+{summary.total} Pop Points for Poppy!</p>
+          <p className="earned-line">+{summary.total} points</p>
         ) : (
-          <p className="note">Tricky words get easier every time you practice them.</p>
+          <p className="note">Keep practicing!</p>
         )}
         <div className="step-nav">
           <span />
           <button type="button" className="start" onClick={onContinue}>
-            Draw my favorite scene 🎨
+            {continueLabel}
           </button>
         </div>
       </section>
@@ -72,7 +72,7 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
     const heard = await check.listen({ maxSeconds: 5 })
     const gotIt = heard.some((alt) => alt.split(/\s+/).some((w) => wordsMatch(normalizeWord(w), item.word, { strict: true })))
     if (gotIt) {
-      setFeedback({ good: true, text: `Yes! “${label}”! Now read it in the sentence.` })
+      setFeedback({ good: true, text: 'Yes! Now read the sentence.' })
       setAttempts(0)
       setPhase('sentence')
     } else {
@@ -80,8 +80,8 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
       setFeedback({
         good: false,
         text: heard.length
-          ? `Almost! I heard “${heard[0]}”. Listen and try again!`
-          : "I didn't hear anything. Press the button and say the word!",
+          ? 'Almost! Try again.'
+          : "I didn't hear you. Try again!",
       })
     }
   }
@@ -99,10 +99,10 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
     const wordRead = sentence.some((w) => w.norm === item.word && matched.has(w.index))
     if (share >= SENTENCE_PASS || (wordRead && share >= 0.5)) {
       setPhase('rescued')
-      setFeedback({ good: true, text: 'Rescued! 🛟 Great reading!' })
+      setFeedback({ good: true, text: 'You got it!' })
     } else {
       setAttempts((a) => a + 1)
-      setFeedback({ good: false, text: "Good try! Let's read the sentence one more time." })
+      setFeedback({ good: false, text: 'Try one more time!' })
     }
   }
 
@@ -112,16 +112,16 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
     <section className="rescue" aria-labelledby="rescue-heading">
       <div className="rescue-head">
         <h2 className="heading" id="rescue-heading">
-          Word Rescue 🛟
+          Word Rescue
         </h2>
         <span className="rescue-count">
           Word {index + 1} of {tricky.length}
         </span>
       </div>
       <ol className="rescue-steps" aria-label="Steps">
-        <li className={phase === 'word' ? 'active' : 'done'}>① Say the word</li>
+        <li className={phase === 'word' ? 'active' : 'done'}>1. Say it</li>
         <li className={phase === 'sentence' ? 'active' : phase === 'rescued' ? 'done' : ''}>
-          ② Read it in the sentence
+          2. Read it
         </li>
       </ol>
 
@@ -138,10 +138,10 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
         )}
         <div className="word-help-actions">
           <button type="button" className="t-chip" onClick={() => speak(label, { rate: 0.9 })}>
-            🔊 Hear it
+            🔊
           </button>
           <button type="button" className="t-chip" onClick={() => speak(label, { rate: 0.45 })}>
-            🐢 Slowly
+            🐢
           </button>
         </div>
 
@@ -172,7 +172,7 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
       <div className="rescue-controls">
         {phase === 'rescued' ? (
           <button type="button" className="start" onClick={() => next(true)}>
-            {index + 1 < tricky.length ? 'Next word →' : 'Finish ✨'}
+            Next →
           </button>
         ) : check.supported ? (
           <button
@@ -181,7 +181,7 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
             disabled={check.listening}
             onClick={phase === 'word' ? sayWord : readSentence}
           >
-            🎤 {check.listening ? 'Listening…' : phase === 'word' ? 'Say the word' : 'Read the sentence'}
+            🎤 {check.listening ? 'Listening…' : phase === 'word' ? 'Say it' : 'Read it'}
           </button>
         ) : (
           // No speech recognition: the student says it and taps to confirm.
@@ -190,7 +190,7 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
             className="record-btn"
             onClick={() => (phase === 'word' ? setPhase('sentence') : setPhase('rescued'))}
           >
-            ✋ {phase === 'word' ? 'I said it!' : 'I read it!'}
+            {phase === 'word' ? 'I said it' : 'I read it'}
           </button>
         )}
         <button
@@ -199,7 +199,7 @@ export default function WordRescue({ tricky, sentences, onComplete, onContinue }
           onClick={() => next(false)}
           disabled={check.listening}
         >
-          {attempts >= 2 ? 'Skip for now — try it next time' : 'Skip'}
+          Skip
         </button>
       </div>
     </section>

@@ -137,15 +137,6 @@ export function starsFor(completion) {
   return 0
 }
 
-export const POINTS = {
-  finishReading: 10, // just for reading the chapter aloud
-  perStar: 10,
-  drawing: 10,
-  storyComplete: 50,
-  tenMinutes: 20,
-  rescue: 5, // per tricky word said correctly and read again in its sentence
-}
-
 export function scoreReading(words, matched, seconds) {
   const total = words.length
   const read = matched.size
@@ -158,7 +149,7 @@ export function scoreReading(words, matched, seconds) {
     completion,
     stars,
     seconds,
-    wordsPerMinute: minutes > 0 ? Math.round(read / minutes) : 0,
-    points: POINTS.finishReading + stars * POINTS.perStar,
+    // Words read correctly per minute — shown to teachers, never to students.
+    wcpm: minutes > 0 ? Math.round(read / minutes) : 0,
   }
 }

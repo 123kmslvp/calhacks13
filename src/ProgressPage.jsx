@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import Poppy from './components/Poppy.jsx'
 import SpeakButton from './components/SpeakButton.jsx'
-import { COMPREHENSION } from './data/roster.js'
+import { SKILLS } from './data/roster.js'
+import { BADGES } from './data/badges.js'
 import { loadDrawings } from './data/drawings.js'
 import {
   POINT_RULES,
@@ -13,12 +15,20 @@ import {
   readingTime,
 } from './data/progress.js'
 
-export default function ProgressPage({ student, onBack, onSelectItem }) {
+const TABS = [
+  { id: 'poppy', icon: '🍿', label: 'Poppy' },
+  { id: 'badges', icon: '🏅', label: 'Badges' },
+  { id: 'art', icon: '🎨', label: 'Drawings' },
+  { id: 'skills', icon: '📈', label: 'Skills' },
+]
+
+export default function ProgressPage({ student, onBack, onSelectItem, onRead, onArcade }) {
   const { reading, points } = student
+  const [tab, setTab] = useState('poppy')
   const growth = poppyGrowth(points)
   const { stage, next, toNext } = growth
   const time = readingTime(reading)
-  const messages = encouragements(student)
+  const messages = encouragements(student).slice(0, 2)
   const item = POPPY_ITEMS.find((i) => i.id === student.poppyItem && isItemUnlocked(i.id, points))
   const mastered = reading.words.filter((w) => w.mastered).length
   const drawings = loadDrawings(student.id)
@@ -45,13 +55,30 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
         </div>
 
         {/* Poppy's growth: the reason Pop Points matter */}
+        <div className="progress-tabs" role="tablist" aria-label="My progress">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              className={tab === t.id ? 'progress-tab active' : 'progress-tab'}
+              onClick={() => setTab(t.id)}
+            >
+              <span className="progress-tab-icon" aria-hidden="true">{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'poppy' && (
+          <>
         <section className="poppy-hero" aria-labelledby="poppy-heading">
           <Poppy size="xl" stage={stage} item={item} />
           <div className="poppy-hero-text">
             <h2 className="heading" id="poppy-heading">
               Poppy is a {stage.name}!
             </h2>
-            <p className="poppy-about">{stage.about}</p>
             <div
               className="grow-meter"
               role="progressbar"
@@ -64,7 +91,6 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
             </div>
             <p className="grow-text">
               {growthText}
-              {next?.item && <> It unlocks a {next.item.icon} {next.item.label.toLowerCase()}.</>}
             </p>
           </div>
         </section>
@@ -83,27 +109,6 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
             )
           })}
         </ol>
-
-        <section className="why-points" aria-labelledby="why-heading">
-          <div className="section-head">
-            <h2 className="heading" id="why-heading">Why collect Pop Points?</h2>
-            <SpeakButton text="Pop Points are Poppy's energy! Every story you read and every question you answer warms Poppy up until Poppy grows. Each new stage unlocks something fun to dress Poppy up with. Your points never go away, so Poppy only ever grows!" />
-          </div>
-          <p className="note">
-            Pop Points are Poppy's energy! Reading warms Poppy up until — <strong>POP!</strong> —
-            Poppy grows. Each new stage unlocks something to dress Poppy up. Your points never go
-            away, so Poppy only ever grows.
-          </p>
-          <ul className="earn-list">
-            {POINT_RULES.map((r) => (
-              <li key={r.label}>
-                <span aria-hidden="true">{r.icon}</span>
-                <span>{r.label}</span>
-                <strong>+{r.points}</strong>
-              </li>
-            ))}
-          </ul>
-        </section>
 
         <section aria-labelledby="dress-heading">
           <h2 className="heading" id="dress-heading">Dress up Poppy</h2>
@@ -139,77 +144,45 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
 
         <section className="cheer" aria-labelledby="cheer-heading">
           <div className="section-head">
-            <h2 className="heading" id="cheer-heading">Poppy says…</h2>
+            <h2 className="heading" id="cheer-heading">Poppy says</h2>
             <SpeakButton text={messages.join(' ')} />
           </div>
           <ul className="cheer-list">
             {messages.map((m) => (
-              <li key={m}>🎉 {m}</li>
+              <li key={m}>{m}</li>
             ))}
           </ul>
         </section>
 
-        <section aria-labelledby="stats-heading">
-          <h2 className="heading" id="stats-heading">What I've done</h2>
-          <div className="stat-tiles">
-            <div className="stat-tile">
-              <span className="stat-icon" aria-hidden="true">📚</span>
-              <span className="stat-value">{reading.storiesCompleted}</span>
-              <span className="stat-label">
-                {reading.storiesCompleted === 1 ? 'Story completed' : 'Stories completed'}
-              </span>
-            </div>
-            <div className="stat-tile">
-              <span className="stat-icon" aria-hidden="true">⏱️</span>
-              <span className="stat-value">
-                {time.minutesToday}
-                <small> min</small>
-              </span>
-              <span className="stat-label">Reading today</span>
-              <span className="stat-sub">{time.minutesWeek} min this week</span>
-            </div>
-            <div className="stat-tile">
-              <span className="stat-icon" aria-hidden="true">⭐</span>
-              <span className="stat-value">{points}</span>
-              <span className="stat-label">Pop Points earned</span>
-            </div>
-            <div className="stat-tile">
-              <span className="stat-icon" aria-hidden="true">🔤</span>
-              <span className="stat-value">{reading.words.length}</span>
-              <span className="stat-label">Words practiced</span>
-              <span className="stat-sub">{mastered} mastered</span>
-            </div>
-          </div>
-
-          {reading.words.length > 0 && (
-            <ul className="word-chips" aria-label="Words I practiced">
-              {reading.words.map((w) => (
-                <li key={w.word} className={w.mastered ? 'word mastered' : 'word'}>
-                  {w.mastered && <span aria-label="mastered">✓ </span>}
-                  {w.word}
+          </>
+        )}
+        {tab === 'badges' && (
+          <>
+        <section aria-labelledby="badges-heading">
+          <h2 className="heading" id="badges-heading">
+            My badges <span className="count-chip">{(student.badges ?? []).length} of {BADGES.length}</span>
+          </h2>
+          <ul className="badge-list">
+            {BADGES.map((b) => {
+              const have = (student.badges ?? []).some((x) => x.id === b.id)
+              return (
+                <li key={b.id} className={have ? 'badge-card' : 'badge-card locked'}>
+                  <span className="badge-icon" aria-hidden="true">{have ? b.icon : '🔒'}</span>
+                  <strong>{b.name}</strong>
+                  {have && <span>{b.about}</span>}
                 </li>
-              ))}
-            </ul>
-          )}
-
-          {(reading.trickyWords ?? []).length > 0 && (
-            <>
-              <h3 className="heading small tricky-heading">🛟 Tricky words I'm rescuing</h3>
-              <ul className="word-chips" aria-label="Tricky words">
-                {reading.trickyWords.map((w) => (
-                  <li key={w.word} className={w.rescuedOn ? 'word mastered' : 'word'}>
-                    {w.rescuedOn && <span aria-label="rescued">🛟 </span>}
-                    {w.display}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+              )
+            })}
+          </ul>
         </section>
 
+          </>
+        )}
+        {tab === 'art' && (
+          <>
         {drawings.length > 0 && (
           <section aria-labelledby="gallery-heading">
-            <h2 className="heading" id="gallery-heading">My drawings 🎨</h2>
+            <h2 className="heading" id="gallery-heading">My drawings</h2>
             <ul className="gallery">
               {drawings.map((d) => (
                 <li key={d.id}>
@@ -223,18 +196,72 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
           </section>
         )}
 
+        {(student.writings ?? []).length > 0 && (
+          <section aria-labelledby="writing-heading">
+            <h2 className="heading" id="writing-heading">My writing</h2>
+            <ul className="writing-list">
+              {student.writings.map((w) => (
+                <li key={w.id}>
+                  <span className="comp-hint">{w.storyTitle}</span>
+                  <p>{w.text}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+          {drawings.length === 0 && (student.writings ?? []).length === 0 && (
+            <p className="empty-note">No drawings yet. Finish a chapter, then pick Draw!</p>
+          )}
+          </>
+        )}
+        {tab === 'skills' && (
+          <>
+        <section aria-labelledby="stats-heading">
+          <h2 className="heading" id="stats-heading">What I did</h2>
+          <div className="stat-tiles">
+            <div className="stat-tile">
+              <span className="stat-value">{reading.storiesCompleted}</span>
+              <span className="stat-label">
+                {reading.storiesCompleted === 1 ? 'Story completed' : 'Stories completed'}
+              </span>
+            </div>
+            <div className="stat-tile">
+              <span className="stat-value">
+                {time.minutesToday}
+                <small> min</small>
+              </span>
+              <span className="stat-label">Reading today</span>
+              <span className="stat-sub">{time.minutesWeek} min this week</span>
+            </div>
+            <div className="stat-tile">
+              <span className="stat-value">{points}</span>
+              <span className="stat-label">Pop Points earned</span>
+            </div>
+            <div className="stat-tile">
+              <span className="stat-value">{reading.words.length}</span>
+              <span className="stat-label">Words practiced</span>
+              <span className="stat-sub">{mastered} mastered</span>
+            </div>
+          </div>
+
+        </section>
+
         <section aria-labelledby="comp-heading">
-          <h2 className="heading" id="comp-heading">Understanding stories</h2>
+          <h2 className="heading" id="comp-heading">My reading skills</h2>
           <ul className="comp-list">
-            {COMPREHENSION.map((c) => {
-              const score = reading.comprehension[c.id]
+            {[
+              { id: 'accuracy', kid: 'Reading words correctly', hint: 'When you read out loud', score: reading.accuracy ?? null },
+              ...SKILLS.map((k) => ({ ...k, score: student.skills[k.id] ?? null })),
+            ].map((c) => {
+              const score = c.score
               const level = comprehensionLevel(score)
               return (
                 <li key={c.id}>
                   <div className="comp-row">
                     <span>
-                      <strong>{c.label}</strong>
-                      <span className="comp-hint">{c.hint}</span>
+                      <strong>{c.kid}</strong>
+                      
                     </span>
                     <span className="comp-level">
                       <span aria-hidden="true">{'★'.repeat(level.stars)}{'☆'.repeat(3 - level.stars)} </span>
@@ -244,7 +271,7 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
                   <div
                     className="comp-meter"
                     role="progressbar"
-                    aria-label={c.label}
+                    aria-label={c.kid}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={score ?? 0}
@@ -257,6 +284,18 @@ export default function ProgressPage({ student, onBack, onSelectItem }) {
             })}
           </ul>
         </section>
+          </>
+        )}
+        <div className="home-choices progress-nav">
+          <button type="button" className="home-card home-read" onClick={onRead}>
+            <span className="home-icon" aria-hidden="true">📚</span>
+            <strong>Read a story</strong>
+          </button>
+          <button type="button" className="home-card home-play" onClick={onArcade}>
+            <span className="home-icon" aria-hidden="true">🎮</span>
+            <strong>Play games</strong>
+          </button>
+        </div>
       </section>
     </main>
   )

@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react'
 import { speak } from '../components/SpeakButton.jsx'
 import { syllables } from './syllables.js'
 
-// Pop-up help for one word: hear it, hear it slowly, and see it in parts.
-export default function WordHelp({ word, onClose }) {
+// Pop-up help for one word: hear it, hear it slowly, see it in parts, and —
+// for the chapter's vocabulary words — what it means, with an example.
+export default function WordHelp({ word, meaning, onClose }) {
   const panelRef = useRef(null)
   const closeRef = useRef(onClose)
   closeRef.current = onClose
@@ -31,23 +32,38 @@ export default function WordHelp({ word, onClose }) {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="word-help-kicker">Need help with this word?</p>
+        
         <h2 className="word-help-word" id="word-help-title">
           {label}
         </h2>
 
         <div className="word-help-actions">
           <button type="button" className="t-chip" onClick={() => speak(label, { rate: 0.9 })}>
-            🔊 Hear it
+            🔊
           </button>
           <button type="button" className="t-chip" onClick={() => speak(label, { rate: 0.45 })}>
-            🐢 Hear it slowly
+            🐢
           </button>
         </div>
 
+        {meaning && (
+          <div className="word-meaning">
+            <p>
+              {meaning.definition}
+            </p>
+            <button
+              type="button"
+              className="t-chip small-chip"
+              onClick={() => speak(`${label}. ${meaning.definition} For example: ${meaning.example}`)}
+            >
+              🔊 Meaning
+            </button>
+          </div>
+        )}
+
         {parts.length > 1 && (
           <div className="word-parts">
-            <p className="note">Say it in parts — tap each one:</p>
+            
             <div className="part-row">
               {parts.map((part, i) => (
                 <button
@@ -64,7 +80,7 @@ export default function WordHelp({ word, onClose }) {
         )}
 
         <button type="button" className="start" onClick={onClose}>
-          Got it! Keep reading 👍
+          Got it
         </button>
       </div>
     </div>

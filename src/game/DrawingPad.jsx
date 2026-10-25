@@ -134,7 +134,7 @@ export default function DrawingPad({ stickers, onSave, saving }) {
               aria-pressed={tool === t.id}
               onClick={() => setTool(t.id)}
             >
-              <span aria-hidden="true">{t.icon}</span> {t.label}
+              {t.label}
             </button>
           ))}
         </div>
@@ -157,10 +157,10 @@ export default function DrawingPad({ stickers, onSave, saving }) {
 
         <div className="tool-group" role="group" aria-label="Undo and clear">
           <button type="button" className="tool-btn" onClick={undo} disabled={!canUndo}>
-            ↩️ Undo
+            Undo
           </button>
           <button type="button" className="tool-btn" onClick={clear} disabled={isBlank}>
-            🗑️ Clear
+            Clear
           </button>
         </div>
       </div>
@@ -213,14 +213,14 @@ export default function DrawingPad({ stickers, onSave, saving }) {
       />
 
       <div className="step-nav">
-        <span className="note">{isBlank ? 'Start drawing anywhere!' : 'Looking great!'}</span>
+        <span />
         <button
           type="button"
           className="start"
           disabled={isBlank || saving}
           onClick={() => onSave(canvasRef.current.toDataURL('image/jpeg', 0.8))}
         >
-          Save my drawing 🎨
+          Save
         </button>
       </div>
     </div>

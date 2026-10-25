@@ -79,8 +79,8 @@ export default function ParentReports({ roster, className, onUpdateStudent }) {
           <div className="email-body">
             <p>Hello!</p>
             <p>
-              Here's {preview.firstName}'s week in Kernel Quest, where {className} is learning how
-              computers think through stories and puzzles.
+              Here's {preview.firstName}'s week in Kernel Quest, where {className} is building reading and
+              thinking skills through stories.
             </p>
             <h4>This week</h4>
             <p>{report.activity}</p>

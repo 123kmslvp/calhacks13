@@ -611,3 +611,25 @@ body {
   .stage-path { grid-template-columns: repeat(3, 1fr); row-gap: 12px; }
   .stat-tiles { grid-template-columns: 1fr 1fr; }
 }
+
+/* Progress page tabs */
+.progress-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 4px; }
+.progress-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 14px 6px; font-family: inherit; font-size: 1.05rem; font-weight: 700; color: #4a2c6b;
+  background: #fff; border: 3px solid #e3d4fb; border-radius: 20px; cursor: pointer;
+}
+.progress-tab:hover { border-color: #c4a8f3; }
+.progress-tab.active { background: #fff0f6; border-color: #ff5c9d; box-shadow: 0 4px 0 #ffc2dc; }
+.progress-tab:focus-visible { outline: 4px solid #35b8e8; outline-offset: 2px; }
+.progress-tab-icon { font-size: 2rem; line-height: 1; }
+.empty-note { margin-top: 24px; padding: 20px; font-size: 1.15rem; text-align: center; background: #f7f1ff; border-radius: 20px; }
+@media (max-width: 560px) { .progress-tabs { grid-template-columns: repeat(2, 1fr); } }
+
+/* No bobbing or floating anywhere — motion made some kids feel sick. */
+.poppy, .blob, .para-art span, .intro-cover, .game-icon, .ready-avatar, .stage-sizzle .kernel,
+.sizzle, .sparkle, .star.on, .badge-card.new, .grew, .step, .follow-up, .record-btn.listening,
+.speak-answer.listening { animation: none !important; }
+.home-card:hover, .story-card:hover, .chapter:hover, .game-card:hover, .next-card:hover,
+.choice-btn:hover, .recommended:hover, .event-card:hover, .pref:hover, .dress-item:hover,
+.arcade-teaser:hover { transform: none !important; }
